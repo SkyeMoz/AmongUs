@@ -1,52 +1,270 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta charset="UTF-8">
-  <title>Skeld Community</title>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
 
-  <!-- Modern font -->
-  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;800&display=swap" rel="stylesheet">
+<title>The Skeld Hub</title>
 
-  <link rel="stylesheet" href="style.css">
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;800&display=swap" rel="stylesheet">
+
+<style>
+* {
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+  -webkit-tap-highlight-color: transparent;
+  user-select: none;
+}
+
+body {
+  font-family: "Inter", sans-serif;
+  background: black;
+  color: white;
+  overflow-x: hidden;
+}
+
+/* particles */
+canvas {
+  position: fixed;
+  top: 0;
+  left: 0;
+  z-index: -1;
+}
+
+/* loading */
+#loading {
+  position: fixed;
+  width: 100%;
+  height: 100%;
+  background: black;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+  z-index: 999;
+}
+
+.loader {
+  width: 40px;
+  height: 40px;
+  border: 3px solid #25EDC6;
+  border-top: 3px solid transparent;
+  border-radius: 50%;
+  animation: spin 1s linear infinite;
+  margin-bottom: 10px;
+}
+
+@keyframes spin {
+  100% { transform: rotate(360deg); }
+}
+
+/* layout */
+.hero {
+  min-height: 100vh;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  padding: 20px;
+}
+
+/* card */
+.card {
+  width: 100%;
+  max-width: 700px;
+  background: rgba(255,255,255,0.05);
+  border: 1px solid rgba(255,255,255,0.1);
+  border-radius: 14px;
+  padding: 20px;
+  backdrop-filter: blur(10px);
+  animation: fadeIn 1s ease;
+}
+
+@keyframes fadeIn {
+  from { opacity: 0; transform: translateY(20px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+
+/* thumbnail */
+.thumb {
+  width: 100%;
+  height: 220px;
+  background: rgba(255,255,255,0.08);
+  border-radius: 12px;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  margin-bottom: 15px;
+}
+
+/* text */
+h1 {
+  font-size: 32px;
+  margin-bottom: 10px;
+}
+
+.desc {
+  font-size: 14px;
+  opacity: 0.8;
+  line-height: 1.5;
+}
+
+/* buttons */
+.buttons {
+  display: flex;
+  gap: 10px;
+  margin-top: 15px;
+  flex-wrap: wrap;
+}
+
+button {
+  padding: 10px 16px;
+  border: none;
+  border-radius: 12px;
+  cursor: pointer;
+  font-weight: 600;
+  transition: 0.25s;
+}
+
+.play {
+  background: #25EDC6;
+  color: black;
+}
+
+.more {
+  background: transparent;
+  border: 1px solid #25EDC6;
+  color: #25EDC6;
+}
+
+button:hover {
+  transform: scale(1.05) rotate(-1deg);
+  box-shadow: 0 0 12px #96F4E4;
+}
+
+/* more box */
+#moreBox {
+  display: none;
+  margin-top: 15px;
+  padding: 10px;
+  border-left: 2px solid #25EDC6;
+  opacity: 0.9;
+}
+
+/* mobile fix */
+@media (max-width: 600px) {
+  h1 { font-size: 24px; }
+  .thumb { height: 160px; }
+}
+</style>
 </head>
 
 <body>
 
-  <!-- particle background -->
-  <canvas id="particles"></canvas>
+<!-- LOADING -->
+<div id="loading">
+  <div class="loader"></div>
+  <p>Launching The Skeld Hub...</p>
+</div>
 
-  <div class="container">
+<canvas id="bg"></canvas>
 
-    <h1>🚀 Skeld Community</h1>
-    <p class="subtitle">A modern crew hub inspired by space chaos</p>
+<div class="hero">
 
-    <div class="card">
-      <h2>Control Panel</h2>
+  <div class="card">
 
-      <div class="buttons">
-        <button onclick="alert('Discord coming soon')">💬 Discord</button>
-        <button onclick="alert('Instagram link')">📸 Instagram</button>
-        <button onclick="alert('TikTok link')">🎥 TikTok</button>
-        <button onclick="alert('Test button works')">🧪 Test Button</button>
-      </div>
+    <div class="thumb">
+      <p>2550x1440 Thumbnail Here</p>
     </div>
 
-    <div class="card">
-      <h2>Quick Actions</h2>
+    <h1>The Skeld Hub</h1>
 
-      <div class="buttons">
-        <button onclick="alert('Join Lobby System')">🎮 Join Lobby</button>
-        <button onclick="alert('Members list soon')">👥 Members</button>
-        <button onclick="alert('Announcements soon')">📡 Updates</button>
-      </div>
+    <p class="desc">
+      Welcome to The Skeld Hub, a community-driven space where players can connect, enjoy custom game modes inspired by Among Us, and participate in multiplayer events with friends and other members.
+      Join our Discord to take part in events, progression sessions, and community activities built for fun and competition.
+    </p>
+
+    <div class="buttons">
+      <button class="play" onclick="alert('Play system coming soon')">Play Now</button>
+      <button class="more" onclick="toggle()">See More</button>
     </div>
 
-    <footer>
-      Made for Skeld Community • Among Us Inspired Space UI
-    </footer>
+    <div id="moreBox">
+      <h3>More Info</h3>
+      <ul>
+        <li>🎮 Custom Game Modes</li>
+        <li>💬 Discord Community</li>
+        <li>📡 Events & Updates</li>
+        <li>👥 Multiplayer Lobby System</li>
+      </ul>
+    </div>
 
   </div>
 
-  <script src="script.js"></script>
+</div>
+
+<script>
+// loading
+window.onload = () => {
+  setTimeout(() => {
+    document.getElementById("loading").style.display = "none";
+  }, 1200);
+};
+
+// toggle info
+function toggle() {
+  const box = document.getElementById("moreBox");
+  box.style.display = box.style.display === "block" ? "none" : "block";
+}
+
+/* particles */
+const canvas = document.getElementById("bg");
+const ctx = canvas.getContext("2d");
+
+canvas.width = window.innerWidth;
+canvas.height = window.innerHeight;
+
+let particles = [];
+
+for (let i = 0; i < 100; i++) {
+  particles.push({
+    x: Math.random() * canvas.width,
+    y: Math.random() * canvas.height,
+    r: Math.random() * 2,
+    dx: (Math.random() - 0.5) * 0.5,
+    dy: (Math.random() - 0.5) * 0.5
+  });
+}
+
+function animate() {
+  ctx.clearRect(0, 0, canvas.width, canvas.height);
+
+  ctx.fillStyle = "white";
+
+  particles.forEach(p => {
+    p.x += p.dx;
+    p.y += p.dy;
+
+    if (p.x < 0) p.x = canvas.width;
+    if (p.x > canvas.width) p.x = 0;
+    if (p.y < 0) p.y = canvas.height;
+    if (p.y > canvas.height) p.y = 0;
+
+    ctx.beginPath();
+    ctx.arc(p.x, p.y, p.r, 0, Math.PI * 2);
+    ctx.fill();
+  });
+
+  requestAnimationFrame(animate);
+}
+
+animate();
+
+window.addEventListener("resize", () => {
+  canvas.width = window.innerWidth;
+  canvas.height = window.innerHeight;
+});
+</script>
+
 </body>
 </html>
