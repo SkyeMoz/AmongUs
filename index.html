@@ -1,17 +1,47 @@
 <!DOCTYPE html><html lang="en">
 <head>
 <meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0"><title>The Skeld Hub</title><link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;800&display=swap" rel="stylesheet"><style>
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>The Skeld Hub</title>
+
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;800&display=swap" rel="stylesheet">
+
+<style>
 *{margin:0;padding:0;box-sizing:border-box;-webkit-tap-highlight-color:transparent;user-select:none;}
 body{font-family:Inter,sans-serif;background:black;color:white;overflow-x:hidden;}
 canvas{position:fixed;inset:0;z-index:-1;}
-#loading{position:fixed;inset:0;background:black;display:flex;flex-direction:column;justify-content:center;align-items:center;z-index:999;}
-.loader{width:40px;height:40px;border:3px solid #25EDC6;border-top:3px solid transparent;border-radius:50%;animation:spin 1s linear infinite;margin-bottom:10px;}
+
+#loading{
+  position:fixed;inset:0;background:black;
+  display:flex;flex-direction:column;
+  justify-content:center;align-items:center;
+  z-index:999;
+}
+.loader{
+  width:40px;height:40px;
+  border:3px solid #25EDC6;
+  border-top:3px solid transparent;
+  border-radius:50%;
+  animation:spin 1s linear infinite;
+  margin-bottom:10px;
+}
 @keyframes spin{100%{transform:rotate(360deg);}}
 
 .hero{min-height:100vh;display:flex;justify-content:center;align-items:center;padding:20px;}
 .wrapper{width:100%;max-width:800px;}
-.card{width:100%;background:rgba(255,255,255,0.05);border:1px solid rgba(255,255,255,0.1);border-radius:18px;padding:20px;backdrop-filter:blur(10px);margin-bottom:20px;opacity:0;transform:translateY(24px) scale(0.98);}
+
+.card{
+  width:100%;
+  background:rgba(255,255,255,0.05);
+  border:1px solid rgba(255,255,255,0.1);
+  border-radius:18px;
+  padding:20px;
+  backdrop-filter:blur(10px);
+  margin-bottom:20px;
+  opacity:0;
+  transform:translateY(24px) scale(0.98);
+}
+
 body.loaded .card{animation:cardIn .7s ease forwards;}
 body.loaded .card:nth-child(1){animation-delay:.05s;}
 body.loaded .card:nth-child(2){animation-delay:.18s;}
@@ -19,52 +49,28 @@ body.loaded .card:nth-child(3){animation-delay:.31s;}
 body.loaded .card:nth-child(4){animation-delay:.44s;}
 body.loaded .card:nth-child(5){animation-delay:.57s;}
 
-@keyframes cardIn{from{opacity:0;transform:translateY(24px) scale(0.98);}to{opacity:1;transform:translateY(0) scale(1);}}
+@keyframes cardIn{
+  from{opacity:0;transform:translateY(24px) scale(0.98);}
+  to{opacity:1;transform:translateY(0) scale(1);}
+}
 
-.thumb img{width:100%;height:220px;object-fit:cover;border-radius:12px;margin-bottom:15px;}
 h1{font-size:32px;margin-bottom:10px;}
 h2{font-size:24px;margin-bottom:8px;}
 
 .desc{font-size:14px;opacity:.85;line-height:1.6;}
+
 .buttons{display:flex;gap:10px;margin-top:15px;flex-wrap:wrap;}
 
-button{border:none;cursor:pointer;font-weight:600;transition:transform .2s ease, box-shadow .2s ease, opacity .2s ease;}
+button{
+  border:none;
+  cursor:pointer;
+  font-weight:600;
+  transition:.2s;
+}
 button:hover{transform:translateY(-1px) scale(1.03);}
 
 .play{background:#25EDC6;color:black;padding:10px 16px;border-radius:12px;}
 .more{background:transparent;border:1px solid #25EDC6;color:#25EDC6;padding:10px 16px;border-radius:12px;}
-
-#moreBox{max-height:0;overflow:hidden;opacity:0;transform:translateY(-10px);transition:max-height .45s ease, opacity .35s ease, transform .35s ease, margin-top .35s ease;}
-#moreBox.open{max-height:260px;opacity:1;transform:translateY(0);margin-top:15px;}
-
-.profileTop{display:flex;justify-content:center;margin:8px 0 16px;}
-.profileTop img{width:110px;height:110px;border-radius:50%;object-fit:cover;border:3px solid rgba(37,237,198,.8);box-shadow:0 0 24px rgba(37,237,198,.2);}
-
-.streamerHeader{display:flex;align-items:center;justify-content:space-between;gap:12px;}
-.refreshCircle{width:44px;height:44px;border-radius:50%;background:rgba(37,237,198,.12);border:1px solid rgba(37,237,198,.8);color:#25EDC6;display:grid;place-items:center;flex:0 0 auto;}
-.refreshCircle svg{width:20px;height:20px;transition:transform .35s ease;}
-.refreshCircle.spinning svg{transform:rotate(360deg);}
-
-.streamerBox{display:flex;gap:12px;align-items:center;margin-top:12px;padding:12px;border-radius:14px;background:rgba(255,255,255,.04);border:1px solid rgba(255,255,255,.08);opacity:0;transform:translateY(12px);}
-.streamerBox.show{animation:streamerPop .35s ease forwards;}
-@keyframes streamerPop{from{opacity:0;transform:translateY(12px);}to{opacity:1;transform:translateY(0);}}
-
-.streamerBox img{width:68px;height:68px;border-radius:14px;object-fit:cover;flex:0 0 auto;}
-.streamerInfo b{font-size:16px;}
-.streamerInfo p{font-size:13px;opacity:.8;margin-top:2px;}
-.streamerActions{display:flex;gap:10px;margin-top:10px;flex-wrap:wrap;}
-.smallbtn{padding:8px 12px;border-radius:10px;font-size:12px;}
-
-/* NEW FEATURES */
-#crestBar{
-  position:fixed;top:10px;left:50%;transform:translateX(-50%);
-  background:rgba(0,0,0,.6);
-  border:1px solid rgba(37,237,198,.6);
-  padding:8px 16px;border-radius:12px;
-  font-weight:600;
-  backdrop-filter:blur(10px);
-  z-index:50;
-}
 
 input{
   width:100%;
@@ -77,17 +83,34 @@ input{
   color:white;
 }
 
+/* crest bar */
+#crestBar{
+  position:fixed;
+  top:10px;
+  left:50%;
+  transform:translateX(-50%);
+  background:rgba(0,0,0,.6);
+  border:1px solid rgba(37,237,198,.6);
+  padding:8px 16px;
+  border-radius:12px;
+  backdrop-filter:blur(10px);
+  z-index:50;
+}
+
 /* modal */
 #modal{
-  position:fixed;inset:0;background:rgba(0,0,0,.6);
-  display:none;justify-content:center;align-items:center;
+  position:fixed;
+  inset:0;
+  background:rgba(0,0,0,.6);
+  display:none;
+  justify-content:center;
+  align-items:center;
   z-index:100;
 }
 .modalBox{
   background:#111;
   padding:20px;
   border-radius:16px;
-  border:1px solid rgba(255,255,255,.1);
   width:90%;
   max-width:320px;
 }
@@ -106,17 +129,12 @@ input{
   transition:.4s;
   z-index:200;
 }
+</style>
+</head>
 
-@media (max-width:600px){
-  h1{font-size:24px;}
-  .thumb img{height:160px;}
-  .profileTop img{width:92px;height:92px;}
-}
-</style></head>
 <body>
 
 <div id="crestBar">Crest: <span id="crestCount">0</span></div>
-
 <div id="msg"></div>
 
 <div id="modal">
@@ -130,9 +148,6 @@ input{
   </div>
 </div>
 
-<audio id="clickSound" src="settings/click.mp3"></audio> 
-<audio id="hoverSound" src="settings/hover.mp3"></audio>
-
 <div id="loading">
   <div class="loader"></div>
   <p>Launching The Skeld Hub...</p>
@@ -143,25 +158,11 @@ input{
 <div class="hero">
 <div class="wrapper">
 
-<!-- EXISTING CARDS (UNCHANGED) -->
-<div class="card">...</div>
-
-<div class="card">...</div>
-
 <div class="card">
-  <div class="streamerHeader">
-    <h2>TikTok Streamers 🔥</h2>
-    <button class="refreshCircle" id="refreshBtn" onclick="randomStreamer()">
-      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2">
-        <path d="M21 12a9 9 0 1 1-3-6.7"></path>
-        <polyline points="21 3 21 9 15 9"></polyline>
-      </svg>
-    </button>
-  </div>
-  <div class="streamerBox" id="streamerBox"></div>
+  <h1>The Skeld Hub</h1>
+  <p class="desc">Community platform for Among Us style gameplay.</p>
 </div>
 
-<!-- REDEEM -->
 <div class="card">
   <h2>Redeem Code</h2>
   <input id="redeemInput" placeholder="Enter code...">
@@ -170,33 +171,43 @@ input{
   </div>
 </div>
 
-<!-- SHOP -->
 <div class="card">
   <h2>Lobby Mods</h2>
   <div class="buttons">
-    <button class="more" onclick="openModal('0 Cooldown',1500)">0 Cooldown (1500)</button>
-    <button class="more" onclick="openModal('SNS Mode',500)">SNS Mode (500)</button>
+    <button class="more" onclick="openModal('0 Cooldown',1500)">0 Cooldown</button>
+    <button class="more" onclick="openModal('SNS Mode',500)">SNS Mode</button>
   </div>
 </div>
 
 </div></div>
 
 <script>
+// ⚡ FAST LOADING FIX
+document.addEventListener('DOMContentLoaded',()=>{
+  const loader=document.getElementById('loading');
+  document.body.classList.add('loaded');
+  loader.style.transition='opacity .35s ease';
+  loader.style.opacity='0';
+  setTimeout(()=>loader.style.display='none',350);
+});
+
 // CREST SYSTEM
-let crest = Number(localStorage.getItem("crest")) || 0;
-const crestEl = document.getElementById("crestCount");
+let crest=Number(localStorage.getItem("crest"))||0;
+const crestEl=document.getElementById("crestCount");
 
 function updateCrest(){
-  crestEl.textContent = crest;
-  localStorage.setItem("crest", crest);
+  crestEl.textContent=crest;
+  localStorage.setItem("crest",crest);
 }
+
 setInterval(()=>{
   crest++;
   updateCrest();
 },1000);
+
 updateCrest();
 
-// MESSAGE
+// MESSAGE SYSTEM
 function showMsg(t){
   const m=document.getElementById('msg');
   m.textContent=t;
@@ -206,33 +217,35 @@ function showMsg(t){
 
 // REDEEM
 const codes={
-  "BBJKL":500,"Risk4Live":1500,"SkyeMozTaxes":60000,
-  "BlondeGirl":420,"SkeldyUs2026":500,"AmongUs":230
+  BBJKL:500,
+  Risk4Live:1500,
+  SkyeMozTaxes:60000,
+  BlondeGirl:420,
+  SkeldyUs2026:500,
+  AmongUs:230
 };
 
 function redeem(){
-  const val=document.getElementById('redeemInput').value.trim();
-  if(codes[val]){
-    crest+=codes[val];
+  const v=document.getElementById('redeemInput').value.trim();
+  if(codes[v]){
+    crest+=codes[v];
     updateCrest();
     showMsg("Redeemed!");
-  }else{
-    showMsg("Invalid code");
-  }
+  }else showMsg("Invalid code");
 }
 
-// SHOP + MODAL
+// SHOP
 let currentItem=null;
 
 function openModal(name,price){
   currentItem={name,price};
-  document.getElementById('modalName').textContent=name;
-  document.getElementById('modalPrice').textContent=price+" Crest";
-  document.getElementById('modal').style.display="flex";
+  modalName.textContent=name;
+  modalPrice.textContent=price+" Crest";
+  modal.style.display="flex";
 }
 
 function closeModal(){
-  document.getElementById('modal').style.display="none";
+  modal.style.display="none";
 }
 
 function confirmPurchase(){
@@ -246,47 +259,42 @@ function confirmPurchase(){
   showMsg("Purchased!");
 }
 
-// STREAMER (enhanced already)
-const streamers=[
-  {name:'riskylit_', img:'settings/pinned.png'},
-  {name:'blondebiss', img:'settings/1.png'},
-  {name:'kasvvy', img:'settings/3.png'}
-];
-
-function renderStreamer(s){
-  const box=document.getElementById('streamerBox');
-  box.classList.remove('show');
-  void box.offsetWidth;
-  box.innerHTML=`<img src="${s.img}"><div><b>@${s.name}</b></div>`;
-  box.classList.add('show');
-}
-
-function randomStreamer(){
-  document.getElementById('refreshBtn').classList.add('spinning');
-  setTimeout(()=>document.getElementById('refreshBtn').classList.remove('spinning'),400);
-  renderStreamer(streamers[Math.floor(Math.random()*streamers.length)]);
-}
-renderStreamer(streamers[0]);
-
-// PARTICLES (enhanced smooth)
+// PARTICLES
 const canvas=document.getElementById('bg');
 const ctx=canvas.getContext('2d');
-function resize(){canvas.width=innerWidth;canvas.height=innerHeight;}
+
+function resize(){
+  canvas.width=innerWidth;
+  canvas.height=innerHeight;
+}
 resize();
-let p=Array.from({length:80},()=>({x:Math.random()*innerWidth,y:Math.random()*innerHeight,dx:(Math.random()-0.5)*0.7,dy:(Math.random()-0.5)*0.7,r:Math.random()*2}));
+
+let p=Array.from({length:80},()=>({
+  x:Math.random()*innerWidth,
+  y:Math.random()*innerHeight,
+  dx:(Math.random()-0.5)*0.7,
+  dy:(Math.random()-0.5)*0.7,
+  r:Math.random()*2
+}));
 
 function anim(){
   ctx.clearRect(0,0,canvas.width,canvas.height);
   ctx.fillStyle="white";
   p.forEach(o=>{
-    o.x+=o.dx;o.y+=o.dy;
+    o.x+=o.dx;
+    o.y+=o.dy;
     if(o.x<0||o.x>canvas.width)o.dx*=-1;
     if(o.y<0||o.y>canvas.height)o.dy*=-1;
-    ctx.beginPath();ctx.arc(o.x,o.y,o.r,0,6.28);ctx.fill();
+    ctx.beginPath();
+    ctx.arc(o.x,o.y,o.r,0,6.28);
+    ctx.fill();
   });
   requestAnimationFrame(anim);
 }
 anim();
+
 window.addEventListener('resize',resize);
 </script>
-</body></html>
+
+</body>
+</html>
