@@ -1,287 +1,326 @@
-<!DOCTYPE html>
-<html lang="en">
+<!DOCTYPE html><html lang="en">
 <head>
 <meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
-
-<title>The Skeld Hub</title>
-
-<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;800&display=swap" rel="stylesheet">
-
-<style>
-* {
-  margin: 0;
-  padding: 0;
-  box-sizing: border-box;
-  -webkit-tap-highlight-color: transparent;
-  user-select: none;
+<meta name="viewport" content="width=device-width, initial-scale=1.0"><title>The Skeld Hub</title><link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;800&display=swap" rel="stylesheet"><style>
+*{
+  margin:0;
+  padding:0;
+  box-sizing:border-box;
+  -webkit-tap-highlight-color:transparent;
+  user-select:none;
 }
 
-body {
-  font-family: "Inter", sans-serif;
-  background: black;
-  color: white;
-  overflow-x: hidden;
+body{
+  font-family:Inter,sans-serif;
+  background:black;
+  color:white;
+  overflow-x:hidden;
 }
 
-/* particles */
-canvas {
-  position: fixed;
-  top: 0;
-  left: 0;
-  z-index: -1;
+canvas{
+  position:fixed;
+  top:0;
+  left:0;
+  z-index:-1;
 }
 
-/* loading */
-#loading {
-  position: fixed;
-  width: 100%;
-  height: 100%;
-  background: black;
-  display: flex;
-  flex-direction: column;
-  justify-content: center;
-  align-items: center;
-  z-index: 999;
+#loading{
+  position:fixed;
+  inset:0;
+  background:black;
+  display:flex;
+  flex-direction:column;
+  justify-content:center;
+  align-items:center;
+  z-index:999;
 }
 
-.loader {
-  width: 40px;
-  height: 40px;
-  border: 3px solid #25EDC6;
-  border-top: 3px solid transparent;
-  border-radius: 50%;
-  animation: spin 1s linear infinite;
-  margin-bottom: 10px;
+.loader{
+  width:40px;
+  height:40px;
+  border:3px solid #25EDC6;
+  border-top:3px solid transparent;
+  border-radius:50%;
+  animation:spin 1s linear infinite;
+  margin-bottom:10px;
 }
 
-@keyframes spin {
-  100% { transform: rotate(360deg); }
+@keyframes spin{100%{transform:rotate(360deg);}}
+
+.hero{
+  min-height:100vh;
+  display:flex;
+  justify-content:center;
+  align-items:center;
+  padding:20px;
 }
 
-/* layout */
-.hero {
-  min-height: 100vh;
-  display: flex;
-  justify-content: center;
-  align-items: center;
-  padding: 20px;
+.card{
+  width:100%;
+  max-width:750px;
+  background:rgba(255,255,255,0.05);
+  border:1px solid rgba(255,255,255,0.1);
+  border-radius:14px;
+  padding:20px;
+  backdrop-filter:blur(10px);
+  margin-bottom:20px;
+  animation:fadeIn 1s ease;
 }
 
-/* card */
-.card {
-  width: 100%;
-  max-width: 700px;
-  background: rgba(255,255,255,0.05);
-  border: 1px solid rgba(255,255,255,0.1);
-  border-radius: 14px;
-  padding: 20px;
-  backdrop-filter: blur(10px);
-  animation: fadeIn 1s ease;
+@keyframes fadeIn{
+  from{opacity:0;transform:translateY(20px)}
+  to{opacity:1;transform:translateY(0)}
 }
 
-@keyframes fadeIn {
-  from { opacity: 0; transform: translateY(20px); }
-  to { opacity: 1; transform: translateY(0); }
+.thumb img{
+  width:100%;
+  height:220px;
+  object-fit:cover;
+  border-radius:12px;
+  margin-bottom:15px;
 }
 
-/* thumbnail */
-.thumb img {
-  width: 100%;
-  height: 220px;
-  object-fit: cover;
-  border-radius: 12px;
-  margin-bottom: 15px;
+h1{font-size:32px;margin-bottom:10px;}
+
+.desc{
+  font-size:14px;
+  opacity:.85;
+  line-height:1.5;
 }
 
-/* text */
-h1 {
-  font-size: 32px;
-  margin-bottom: 10px;
+.buttons{
+  display:flex;
+  gap:10px;
+  margin-top:15px;
+  flex-wrap:wrap;
 }
 
-.desc {
-  font-size: 14px;
-  opacity: 0.8;
-  line-height: 1.5;
+button{
+  padding:10px 16px;
+  border:none;
+  border-radius:12px;
+  cursor:pointer;
+  font-weight:600;
+  transition:.2s;
 }
 
-/* buttons */
-.buttons {
-  display: flex;
-  gap: 10px;
-  margin-top: 15px;
-  flex-wrap: wrap;
+.play{background:#25EDC6;color:black;}
+.more{background:transparent;border:1px solid #25EDC6;color:#25EDC6;}
+
+button:hover{transform:scale(1.05);}
+
+#moreBox{
+  display:none;
+  margin-top:15px;
+  padding:10px;
+  border-left:2px solid #25EDC6;
 }
 
-button {
-  padding: 10px 16px;
-  border: none;
-  border-radius: 12px;
-  cursor: pointer;
-  font-weight: 600;
-  transition: 0.25s;
+.social a{
+  color:#25EDC6;
+  text-decoration:none;
 }
 
-.play {
-  background: #25EDC6;
-  color: black;
+.streamer-card{
+  display:flex;
+  gap:10px;
+  align-items:center;
+  margin-top:10px;
 }
 
-.more {
-  background: transparent;
-  border: 1px solid #25EDC6;
-  color: #25EDC6;
+.streamer-card img{
+  width:60px;
+  height:60px;
+  border-radius:12px;
+  object-fit:cover;
 }
 
-button:hover {
-  transform: scale(1.05) rotate(-1deg);
-  box-shadow: 0 0 12px #96F4E4;
+.smallbtn{
+  padding:6px 10px;
+  font-size:12px;
 }
 
-/* more box */
-#moreBox {
-  display: none;
-  margin-top: 15px;
-  padding: 10px;
-  border-left: 2px solid #25EDC6;
-  opacity: 0.9;
+.refresh{
+  background:transparent;
+  border:1px solid #fff;
+  color:white;
+  margin-bottom:10px;
 }
 
-/* mobile fix */
-@media (max-width: 600px) {
-  h1 { font-size: 24px; }
-  .thumb img { height: 160px; }
-}
-</style>
-</head>
+</style></head>
+<body><audio id="clickSound" src="settings/click.mp3"></audio> <audio id="hoverSound" src="settings/hover.mp3"></audio>
 
-<body>
-
-<!-- sounds -->
-<audio id="clickSound" src="settings/click.mp3"></audio>
-<audio id="hoverSound" src="settings/hover.mp3"></audio>
-
-<!-- loading -->
 <div id="loading">
   <div class="loader"></div>
   <p>Launching The Skeld Hub...</p>
-</div>
+</div><canvas id="bg"></canvas>
 
-<canvas id="bg"></canvas>
-
-<div class="hero">
-
-  <div class="card">
-
-    <!-- thumbnail -->
-    <div class="thumb">
-      <img src="settings/thumbnail.png" alt="thumbnail">
-    </div>
-
-    <h1>The Skeld Hub</h1>
-
-    <p class="desc">
-      Welcome to The Skeld Hub, a community-driven space where players can connect, enjoy custom game modes inspired by Among Us, and participate in multiplayer events with friends and other members.
-      Join our Discord to take part in events, progression sessions, and community activities built for fun and competition.
-    </p>
-
-    <div class="buttons">
-      <button class="play">Play Now</button>
-      <button class="more" onclick="toggle()">See More</button>
-    </div>
-
-    <div id="moreBox">
-      <h3>More Info</h3>
-      <ul>
-        <li>🎮 Custom Game Modes</li>
-        <li>💬 Discord Community</li>
-        <li>📡 Events & Updates</li>
-        <li>👥 Multiplayer Lobby System</li>
-      </ul>
-    </div>
-
+<div class="hero">  <div style="width:100%;max-width:800px;"><!-- CARD 1 -->
+<div class="card">
+  <div class="thumb">
+    <img src="settings/thumbnail.png">
   </div>
 
+  <h1>The Skeld Hub</h1>
+
+  <p class="desc">
+    Welcome to The Skeld Hub, a community-driven platform where players can connect, enjoy custom game modes inspired by Among Us, and participate in multiplayer events with friends and other members.
+    Join our Discord to participate in events, progression sessions, and community activities designed for fun and competition.
+  </p>
+
+  <div class="buttons">
+    <button class="play">Play Now</button>
+    <button class="more" onclick="toggle('moreBox1')">See More</button>
+  </div>
+
+  <div id="moreBox1">
+    <h3>More Info</h3>
+    <ul>
+      <li>🎮 Custom Game Modes</li>
+      <li>💬 Discord Community</li>
+      <li>📡 Events & Updates</li>
+      <li>👥 Multiplayer Lobby System</li>
+    </ul>
+
+    <p class="social">
+      Discord: <a href="https://discord.gg/VaTtktbqwD" target="_blank">Join Server</a>
+    </p>
+  </div>
 </div>
 
-<script>
-// loading
-window.onload = () => {
-  setTimeout(() => {
-    document.getElementById("loading").style.display = "none";
-  }, 1200);
-};
+<!-- CARD 2 -->
+<div class="card">
+  <h2>SkyeMoz</h2>
+  <img src="settings/SkyeMoz.png" style="width:100px;border-radius:50%;margin:10px 0;">
 
-// toggle
-function toggle() {
-  const box = document.getElementById("moreBox");
-  box.style.display = box.style.display === "block" ? "none" : "block";
+  <p class="desc">
+    Creator of this website and founder of Zynix, ZenoX, Moz Studio, and RyzonX. I create content on YouTube and TikTok, and I play Minecraft, Mobile Legends: Bang Bang, and Among Us.
+  </p>
+
+  <p class="social">
+    TikTok: <a href="https://www.tiktok.com/@skyemozmc" target="_blank">@skyemozmc</a><br>
+    YouTube: <a href="https://www.youtube.com/@SkyeMozMC" target="_blank">@SkyeMozMC</a><br>
+    Discord: SkyeMoz (add me)
+  </p>
+</div>
+
+<!-- CARD 3 -->
+<div class="card">
+  <h2>TikTok Streamers 🔥</h2>
+
+  <button class="refresh smallbtn" onclick="randomStreamer()">🔀 Refresh</button>
+
+  <div class="streamer-card" id="streamerBox"></div>
+
+</div>
+
+  </div>
+</div><script>
+
+window.onload=()=>{
+  setTimeout(()=>{
+    document.getElementById('loading').style.display='none'
+  },1200)
 }
 
-// sounds
-const click = document.getElementById("clickSound");
-const hover = document.getElementById("hoverSound");
-
-document.querySelectorAll("button").forEach(btn => {
-  btn.addEventListener("click", () => {
-    click.currentTime = 0;
-    click.play();
-  });
-
-  btn.addEventListener("mouseenter", () => {
-    hover.currentTime = 0;
-    hover.play();
-  });
-});
-
-/* particles */
-const canvas = document.getElementById("bg");
-const ctx = canvas.getContext("2d");
-
-canvas.width = window.innerWidth;
-canvas.height = window.innerHeight;
-
-let particles = [];
-
-for (let i = 0; i < 100; i++) {
-  particles.push({
-    x: Math.random() * canvas.width,
-    y: Math.random() * canvas.height,
-    r: Math.random() * 2,
-    dx: (Math.random() - 0.5) * 0.5,
-    dy: (Math.random() - 0.5) * 0.5
-  });
+function toggle(id){
+  const el=document.getElementById(id);
+  el.style.display=el.style.display==='block'?'none':'block'
 }
 
-function animate() {
-  ctx.clearRect(0, 0, canvas.width, canvas.height);
-  ctx.fillStyle = "white";
+const click=document.getElementById('clickSound');
+const hover=document.getElementById('hoverSound');
 
-  particles.forEach(p => {
-    p.x += p.dx;
-    p.y += p.dy;
+function bindSounds(){
+  document.querySelectorAll('button').forEach(b=>{
+    b.addEventListener('click',()=>{click.currentTime=0;click.play()});
+    b.addEventListener('mouseenter',()=>{hover.currentTime=0;hover.play()});
+  })
+}
+bindSounds();
 
-    if (p.x < 0) p.x = canvas.width;
-    if (p.x > canvas.width) p.x = 0;
-    if (p.y < 0) p.y = canvas.height;
-    if (p.y > canvas.height) p.y = 0;
+// particles
+const canvas=document.getElementById('bg');
+const ctx=canvas.getContext('2d');
+canvas.width=innerWidth;
+canvas.height=innerHeight;
+
+let p=[];
+for(let i=0;i<90;i++){
+  p.push({x:Math.random()*canvas.width,y:Math.random()*canvas.height,r:Math.random()*2,dx:(Math.random()-0.5)*0.5,dy:(Math.random()-0.5)*0.5})
+}
+
+function animate(){
+  ctx.clearRect(0,0,canvas.width,canvas.height);
+  ctx.fillStyle='white';
+
+  p.forEach(o=>{
+    o.x+=o.dx;o.y+=o.dy;
+    if(o.x<0)o.x=canvas.width;
+    if(o.x>canvas.width)o.x=0;
+    if(o.y<0)o.y=canvas.height;
+    if(o.y>canvas.height)o.y=0;
 
     ctx.beginPath();
-    ctx.arc(p.x, p.y, p.r, 0, Math.PI * 2);
+    ctx.arc(o.x,o.y,o.r,0,Math.PI*2);
     ctx.fill();
   });
 
   requestAnimationFrame(animate);
 }
-
 animate();
 
-window.addEventListener("resize", () => {
-  canvas.width = window.innerWidth;
-  canvas.height = window.innerHeight;
-});
-</script>
+// STREAMERS
+const streamers=[
+  {name:"blondebiss",img:"settings/1.png",tiktok:"blondebiss",discord:null},
+  {name:"gg.salutensmp",img:"settings/2.png",tiktok:"gg.salutensmp",discord:"KVBYTxQEC"},
+  {name:"kasvvy",img:"settings/3.png",tiktok:"kasvvy",discord:null},
+  {name:"coletickle23",img:"settings/4.png",tiktok:"coletickle23",discord:null},
+  {name:"yaslynbillz",img:"settings/5.png",tiktok:"yaslynbillz",discord:null},
+  {name:"silversouppeachyp28",img:"settings/6.png",tiktok:"silversouppeachyp28",discord:null}
+];
 
-</body>
+let pinned={
+  name:"riskylit_",
+  img:"settings/pinned.png",
+  tiktok:"riskylit_",
+  discord:"UrFk6aZE6c",
+  pinned:true
+};
+
+function renderPinned(){
+  const box=document.getElementById('streamerBox');
+  box.innerHTML=`
+    <img src="${pinned.img}">
+    <div>
+      <b>${pinned.name}</b><br>
+      <button class='smallbtn play' onclick="window.open('https://www.tiktok.com/@${pinned.tiktok}')">Watch</button>
+      <button class='smallbtn more' onclick="window.open('https://discord.gg/${pinned.discord}')">Join</button>
+    </div>
+  `;
+}
+
+function randomStreamer(){
+  const s=streamers[Math.floor(Math.random()*streamers.length)];
+  const box=document.getElementById('streamerBox');
+
+  const discord=s.discord?`https://discord.gg/${s.discord}`:'#';
+  box.innerHTML=`
+    <img src='${s.img}'>
+    <div>
+      <b>${s.name}</b><br>
+      <button class='smallbtn play' onclick="window.open('https://www.tiktok.com/@${s.tiktok}')">Watch</button>
+      <button class='smallbtn more' onclick="window.open('${discord}')">Join</button>
+    </div>
+  `;
+}
+
+renderPinned();
+
+window.addEventListener('resize',()=>{
+  canvas.width=innerWidth;
+  canvas.height=innerHeight;
+});
+
+</script></body>
 </html>
