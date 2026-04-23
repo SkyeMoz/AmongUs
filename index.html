@@ -1,94 +1,264 @@
 <!DOCTYPE html>
 <html lang="en">
+
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
 <title>The Skeld Hub</title>
 
 <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;800&display=swap" rel="stylesheet">
 
 <style>
-*{margin:0;padding:0;box-sizing:border-box;user-select:none}
-body{font-family:Inter,sans-serif;background:#000;color:#fff;overflow-x:hidden}
 
-canvas{position:fixed;inset:0;z-index:-1}
-
-/* loading */
-#loading{position:fixed;inset:0;background:#000;display:flex;justify-content:center;align-items:center;flex-direction:column;z-index:999}
-.loader{width:40px;height:40px;border:3px solid #25EDC6;border-top:3px solid transparent;border-radius:50%;animation:spin 1s linear infinite}
-@keyframes spin{100%{transform:rotate(360deg)}}
-
-/* layout */
-.hero{min-height:100vh;display:flex;justify-content:center;padding:20px}
-.card{
-width:100%;max-width:720px;
-background:rgba(255,255,255,.05);
-border:1px solid rgba(255,255,255,.1);
-border-radius:14px;
-padding:20px;
-margin-bottom:15px;
-animation:fade .6s ease
+/* RESET */
+*{
+margin:0;
+padding:0;
+box-sizing:border-box;
+user-select:none;
 }
-@keyframes fade{from{opacity:0;transform:translateY(15px)}to{opacity:1;transform:translateY(0)}}
 
-h1{font-size:30px;margin-bottom:10px}
-h2{font-size:22px;margin-bottom:10px}
-.desc{opacity:.85;font-size:14px;line-height:1.5}
+body{
+font-family:Inter,sans-serif;
+background:black;
+color:white;
+overflow-x:hidden;
+}
 
-/* buttons */
-button{padding:10px 14px;border:none;border-radius:10px;font-weight:600;cursor:pointer;transition:.2s}
-button:hover{transform:scale(1.05)}
-.play{background:#25EDC6;color:#000}
-.more{background:transparent;border:1px solid #25EDC6;color:#25EDC6}
+/* PARTICLES */
+canvas{
+position:fixed;
+inset:0;
+z-index:-1;
+}
 
-/* crest */
-.topbar{display:flex;justify-content:space-between;align-items:center;margin-bottom:10px}
-.crest{display:flex;gap:8px;align-items:center;background:rgba(37,237,198,.12);padding:6px 10px;border-radius:999px}
-.crest img{width:20px;height:20px}
+/* LOADING */
+#loading{
+position:fixed;
+inset:0;
+background:black;
+display:flex;
+flex-direction:column;
+justify-content:center;
+align-items:center;
+z-index:999;
+}
 
-/* profile */
-.profile{display:flex;justify-content:center;margin:10px 0}
-.profile img{width:110px;height:110px;border-radius:50%;border:3px solid #25EDC6}
+.loader{
+width:40px;
+height:40px;
+border:3px solid #25EDC6;
+border-top:3px solid transparent;
+border-radius:50%;
+animation:spin 1s linear infinite;
+}
 
-/* more */
-#moreBox{max-height:0;overflow:hidden;opacity:0;transition:.4s}
-#moreBox.open{max-height:200px;opacity:1;margin-top:10px}
+@keyframes spin{
+100%{transform:rotate(360deg);}
+}
 
-/* streamer */
-.streamer{display:flex;gap:10px;align-items:center;background:rgba(255,255,255,.04);padding:10px;border-radius:12px}
-.streamer img{width:60px;height:60px;border-radius:12px}
-.refresh{width:40px;height:40px;border-radius:50%;display:grid;place-items:center;border:1px solid #25EDC6;margin-top:10px;cursor:pointer}
+/* LAYOUT */
+.hero{
+min-height:100vh;
+display:flex;
+justify-content:center;
+padding:20px;
+}
 
-/* mods */
-.modRow{display:flex;justify-content:space-between;align-items:center;background:rgba(255,255,255,.04);padding:10px;border-radius:12px;margin-top:10px}
-.modRow img{width:40px;height:40px;border-radius:10px}
+.wrapper{
+width:100%;
+max-width:800px;
+}
 
-/* modal */
-.modalBg{position:fixed;inset:0;background:rgba(0,0,0,.7);display:none;justify-content:center;align-items:center}
-.modal{background:#111;padding:20px;border-radius:14px;width:90%;max-width:400px}
-.modalBtns{display:flex;justify-content:flex-end;gap:10px;margin-top:10px}
+/* CARD */
+.card{
+background:rgba(255,255,255,0.05);
+border:1px solid rgba(255,255,255,0.1);
+border-radius:16px;
+padding:20px;
+margin-bottom:18px;
+backdrop-filter:blur(10px);
+animation:fadeIn .6s ease;
+}
 
-input{width:100%;padding:10px;border-radius:10px;border:1px solid #333;background:#000;color:#fff;margin-top:10px}
+@keyframes fadeIn{
+from{opacity:0;transform:translateY(18px);}
+to{opacity:1;transform:translateY(0);}
+}
+
+/* PROFILE */
+.profile{
+display:flex;
+justify-content:center;
+margin-bottom:12px;
+}
+
+.profile img{
+width:110px;
+height:110px;
+border-radius:50%;
+border:3px solid #25EDC6;
+}
+
+/* TEXT */
+h1{
+font-size:30px;
+margin-bottom:8px;
+}
+
+h2{
+font-size:22px;
+margin-bottom:10px;
+}
+
+.desc{
+font-size:14px;
+opacity:.85;
+line-height:1.6;
+}
+
+/* BUTTONS */
+button{
+border:none;
+cursor:pointer;
+font-weight:600;
+padding:10px 14px;
+border-radius:12px;
+transition:.25s;
+}
+
+button:hover{
+transform:scale(1.05);
+}
+
+.play{
+background:#25EDC6;
+color:black;
+}
+
+.more{
+background:transparent;
+border:1px solid #25EDC6;
+color:#25EDC6;
+}
+
+/* MORE */
+#moreBox{
+max-height:0;
+overflow:hidden;
+opacity:0;
+transition:.4s;
+}
+
+#moreBox.open{
+max-height:200px;
+opacity:1;
+margin-top:10px;
+}
+
+/* STREAMER */
+.streamer{
+display:flex;
+gap:12px;
+align-items:center;
+background:rgba(255,255,255,.04);
+padding:12px;
+border-radius:12px;
+}
+
+.streamer img{
+width:60px;
+height:60px;
+border-radius:12px;
+}
+
+.refresh{
+margin-top:10px;
+width:42px;
+height:42px;
+border-radius:50%;
+border:1px solid #25EDC6;
+display:grid;
+place-items:center;
+cursor:pointer;
+}
+
+/* CREST */
+.crest{
+display:flex;
+justify-content:space-between;
+align-items:center;
+margin-bottom:10px;
+}
+
+/* MOD SHOP */
+.modRow{
+display:flex;
+justify-content:space-between;
+align-items:center;
+background:rgba(255,255,255,.04);
+padding:10px;
+border-radius:12px;
+margin-top:10px;
+}
+
+/* MODAL */
+.modalBg{
+position:fixed;
+inset:0;
+background:rgba(0,0,0,.7);
+display:none;
+justify-content:center;
+align-items:center;
+}
+
+.modal{
+background:#111;
+padding:20px;
+border-radius:14px;
+width:90%;
+max-width:400px;
+}
+
+.modalBtns{
+display:flex;
+justify-content:flex-end;
+gap:10px;
+margin-top:10px;
+}
+
+/* INPUT */
+input{
+width:100%;
+padding:10px;
+border-radius:10px;
+border:1px solid #333;
+background:black;
+color:white;
+margin-top:10px;
+}
+
 </style>
 </head>
 
 <body>
 
-<div id="loading"><div class="loader"></div></div>
+<div id="loading">
+<div class="loader"></div>
+</div>
+
 <canvas id="bg"></canvas>
 
-<!-- TOP -->
 <div class="hero">
-<div>
+<div class="wrapper">
 
-<!-- CREST -->
+<!-- MAIN -->
 <div class="card">
-<div class="topbar">
-<div>The Skeld Hub</div>
+
 <div class="crest">
-<img src="settings/Crest.png">
-<span id="crest">0</span>
-</div>
+<div>The Skeld Hub</div>
+<div>Crest: <span id="crest">0</span></div>
 </div>
 
 <div class="profile">
@@ -96,45 +266,64 @@ input{width:100%;padding:10px;border-radius:10px;border:1px solid #333;backgroun
 </div>
 
 <h1>The Skeld Hub</h1>
-<p class="desc">Community hub for Among Us style modes, events, and multiplayer lobbies.</p>
 
-<button class="more" onclick="toggle()">See More</button>
+<p class="desc">
+Community hub for custom Among Us style modes, streamers, redeem codes, and multiplayer events.
+</p>
+
+<button class="more" onclick="toggleMore()">See More</button>
+
 <div id="moreBox">
-<p class="desc">Discord events • Game modes • Ranked fun • Community updates</p>
+<p class="desc">
+Discord events • Game modes • Ranked fun • Community updates
+</p>
 </div>
+
 </div>
 
 <!-- STREAMERS -->
 <div class="card">
+
 <h2>Streamers</h2>
 
 <div id="streamerBox" class="streamer"></div>
-<div class="refresh" onclick="randomStreamer()">🔀</div>
+
+<div class="refresh" onclick="randomStreamer()">
+🔀
+</div>
 
 </div>
 
 <!-- REDEEM -->
 <div class="card">
+
 <h2>Redeem Code</h2>
+
 <input id="code" placeholder="Enter code">
+
 <button class="play" onclick="redeem()">Claim</button>
+
 <p id="msg"></p>
+
 </div>
 
-<!-- MODS -->
+<!-- MOD SHOP -->
 <div class="card">
+
 <h2>Lobby Mods</h2>
 
 <div class="modRow">
-<img src="settings/File.png">
 <div>0 Cooldown</div>
-<button class="more" onclick="buy('0 Cooldown',1500)">Buy</button>
+<button class="more" onclick="buy('0 Cooldown',1500)">
+Buy
+</button>
 </div>
 
 <div class="modRow">
-<img src="settings/File.png">
 <div>SNS Mode</div>
-<button class="more" onclick="buy('SNS Mode',500)">Buy</button>
+<button class="more" onclick="buy('SNS Mode',500)">
+Buy
+</button>
 </div>
 
 </div>
@@ -144,101 +333,196 @@ input{width:100%;padding:10px;border-radius:10px;border:1px solid #333;backgroun
 
 <!-- MODAL -->
 <div class="modalBg" id="modal">
+
 <div class="modal">
+
 <h3 id="t"></h3>
+
 <p id="d"></p>
+
 <div class="modalBtns">
-<button class="more" onclick="closeM()">Cancel</button>
-<button class="play">Buy</button>
+
+<button class="more" onclick="closeM()">
+Cancel
+</button>
+
+<button class="play">
+Buy
+</button>
+
 </div>
+
 </div>
+
 </div>
 
 <script>
 
 /* LOAD */
-window.onload=()=>setTimeout(()=>document.getElementById("loading").style.display="none",900)
 
-/* CREST SYSTEM */
-let crest=Number(localStorage.getItem("crest")||0)
+window.onload=()=>{
+setTimeout(()=>{
+document.getElementById("loading").style.display="none";
+},900);
+};
+
+/* CREST */
+
+let crest=
+Number(localStorage.getItem("crest")||0);
+
+document.getElementById("crest").innerText=crest;
 
 setInterval(()=>{
-crest++
-localStorage.setItem("crest",crest)
-document.getElementById("crest").innerText=crest
-},1000)
+crest++;
+localStorage.setItem("crest",crest);
+document.getElementById("crest").innerText=crest;
+},1000);
 
 /* MORE */
-function toggle(){
-document.getElementById("moreBox").classList.toggle("open")
+
+function toggleMore(){
+document.getElementById("moreBox")
+.classList.toggle("open");
 }
 
 /* STREAMERS */
+
 const streamers=[
+
 {name:"riskylit_",img:"settings/pinned.png"},
+
 {name:"blondebiss",img:"settings/1.png"},
-{name:"gg.salutensmp",img:"settings/2.png"},
+
 {name:"kasvvy",img:"settings/3.png"},
+
 {name:"coletickle23",img:"settings/4.png"},
+
 {name:"yaslynbillz",img:"settings/5.png"},
+
 {name:"silversouppeachyp28",img:"settings/6.png"}
-]
+
+];
 
 function randomStreamer(){
-const s=streamers[Math.floor(Math.random()*streamers.length)]
+
+const s=
+streamers[Math.floor(
+Math.random()*streamers.length
+)];
+
 document.getElementById("streamerBox").innerHTML=
-`<img src="${s.img}"><div>@${s.name}</div>`
+
+`<img src="${s.img}">
+<div>@${s.name}</div>`;
+
 }
-randomStreamer()
+
+randomStreamer();
 
 /* REDEEM */
+
 const codes={
+
 BBJKL:500,
+
 Risk4Live:1500,
+
 SkyeMozTaxes:60000,
+
 BlondeGirl:420,
+
 SkeldyUs2026:500,
+
 AmongUs:230
-}
+
+};
 
 function redeem(){
-let v=document.getElementById("code").value
+
+let v=
+document.getElementById("code").value;
+
 if(codes[v]){
-crest+=codes[v]
-msg("Claimed!")
-}else msg("Invalid code")
+
+crest+=codes[v];
+
+msg("Claimed!");
+
+}else{
+
+msg("Invalid code");
+
 }
 
-function msg(t){document.getElementById("msg").innerText=t}
+}
+
+function msg(t){
+document.getElementById("msg").innerText=t;
+}
 
 /* MODAL */
+
 function buy(n,p){
-document.getElementById("modal").style.display="flex"
-document.getElementById("t").innerText=n
-document.getElementById("d").innerText=`Buy ${n} for ${p} Crest?`
+
+document.getElementById("modal")
+.style.display="flex";
+
+document.getElementById("t").innerText=n;
+
+document.getElementById("d").innerText=
+`Buy ${n} for ${p} Crest?`;
+
 }
-function closeM(){document.getElementById("modal").style.display="none"}
+
+function closeM(){
+
+document.getElementById("modal")
+.style.display="none";
+
+}
 
 /* PARTICLES */
-const c=document.getElementById("bg"),x=c.getContext("2d")
-c.width=innerWidth;c.height=innerHeight
 
-let p=[]
+const c=document.getElementById("bg");
+const x=c.getContext("2d");
+
+c.width=innerWidth;
+c.height=innerHeight;
+
+let p=[];
+
 for(let i=0;i<70;i++){
-p.push({x:Math.random()*c.width,y:Math.random()*c.height,r:2})
+
+p.push({
+x:Math.random()*c.width,
+y:Math.random()*c.height,
+r:2
+});
+
 }
 
-function a(){
-x.clearRect(0,0,c.width,c.height)
-x.fillStyle="white"
+function animate(){
+
+x.clearRect(0,0,c.width,c.height);
+
+x.fillStyle="white";
+
 p.forEach(i=>{
-x.beginPath()
-x.arc(i.x,i.y,i.r,0,Math.PI*2)
-x.fill()
-})
-requestAnimationFrame(a)
+
+x.beginPath();
+
+x.arc(i.x,i.y,i.r,0,Math.PI*2);
+
+x.fill();
+
+});
+
+requestAnimationFrame(animate);
+
 }
-a()
+
+animate();
 
 </script>
 
