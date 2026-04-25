@@ -1,300 +1,1155 @@
 <!DOCTYPE html>
-<html>
+<html lang="en">
 <head>
-<title>Circle IO Upgrade</title>
-<meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover" />
+<title>Circle IO v8 Debug</title>
 <style>
-body{
-margin:0;
-overflow:hidden;
-background:#0b0b12;
-font-family:system-ui;
-color:white;
-}
+  :root{
+    --bg:#0b0b12;
+    --panel:rgba(255,255,255,.07);
+    --panel2:rgba(255,255,255,.10);
+    --stroke:rgba(255,255,255,.08);
+    --text:#fff;
+    --muted:rgba(255,255,255,.68);
+    --accent:#ff8a3d;
+  }
 
-/* UI */
-#ui{
-position:fixed;
-top:10px;
-left:10px;
-z-index:10;
-background:rgba(255,255,255,0.06);
-padding:10px;
-border-radius:12px;
-backdrop-filter:blur(10px);
-}
+  *{
+    box-sizing:border-box;
+    -webkit-tap-highlight-color: transparent;
+    user-select:none;
+  }
 
-#bar{
-width:200px;
-height:10px;
-background:#222;
-border-radius:10px;
-overflow:hidden;
-margin-top:5px;
-}
+  html,body{
+    margin:0;
+    width:100%;
+    height:100%;
+    overflow:hidden;
+    background:radial-gradient(circle at top, #17111a, var(--bg));
+    font-family:system-ui,-apple-system,Segoe UI,Roboto,sans-serif;
+    color:var(--text);
+  }
 
-#fill{
-height:100%;
-width:10%;
-background:#ff8a3d;
-}
+  canvas{display:block}
 
-/* joystick */
-#joyBase{
-position:fixed;
-bottom:30px;
-left:30px;
-width:100px;
-height:100px;
-background:rgba(255,255,255,0.05);
-border-radius:50%;
-touch-action:none;
-}
+  #ui{
+    position:fixed;
+    top:10px;
+    left:10px;
+    z-index:30;
+    min-width:240px;
+    padding:12px;
+    border-radius:14px;
+    background:var(--panel);
+    border:1px solid var(--stroke);
+    backdrop-filter:blur(10px);
+    box-shadow:0 14px 35px rgba(0,0,0,.25);
+  }
 
-#joyStick{
-position:absolute;
-top:35px;
-left:35px;
-width:30px;
-height:30px;
-background:#ff8a3d;
-border-radius:50%;
-}
+  #uiTop{
+    display:flex;
+    align-items:center;
+    justify-content:space-between;
+    gap:10px;
+    margin-bottom:8px;
+  }
 
-/* canvas */
-canvas{display:block;}
+  #uiTop b{
+    font-size:14px;
+    letter-spacing:.02em;
+  }
+
+  #f3Btn{
+    border:1px solid rgba(255,255,255,.12);
+    background:rgba(255,255,255,.06);
+    color:var(--text);
+    border-radius:10px;
+    padding:6px 9px;
+    font-weight:800;
+    cursor:pointer;
+  }
+
+  .stat-row{
+    display:flex;
+    justify-content:space-between;
+    gap:10px;
+    font-size:13px;
+    color:var(--muted);
+    margin-top:2px;
+  }
+
+  #barWrap{
+    width:100%;
+    height:11px;
+    border-radius:999px;
+    overflow:hidden;
+    background:#1b1b25;
+    margin-top:8px;
+  }
+
+  #fill{
+    height:100%;
+    width:10%;
+    border-radius:999px;
+    background:linear-gradient(90deg, #ffb36b, var(--accent));
+    box-shadow:0 0 18px rgba(255,138,61,.3);
+  }
+
+  #debugPanel{
+    margin-top:10px;
+    padding:10px;
+    border-radius:12px;
+    background:rgba(0,0,0,.26);
+    border:1px solid rgba(255,255,255,.07);
+    display:none;
+    max-height:40vh;
+    overflow:auto;
+  }
+
+  #debugPanel h3{
+    margin:0 0 8px;
+    font-size:13px;
+    color:#ffcf9f;
+  }
+
+  #debugPanel .line{
+    font-size:12px;
+    line-height:1.4;
+    color:rgba(255,255,255,.85);
+    margin:2px 0;
+    white-space:nowrap;
+  }
+
+  #joyBase{
+    position:fixed;
+    left:50%;
+    bottom:20px;
+    transform:translateX(-50%);
+    width:118px;
+    height:118px;
+    border-radius:50%;
+    background:rgba(255,255,255,.05);
+    border:1px solid rgba(255,255,255,.08);
+    display:none;
+    z-index:35;
+    touch-action:none;
+    backdrop-filter:blur(8px);
+  }
+
+  #joyStick{
+    position:absolute;
+    left:44px;
+    top:44px;
+    width:30px;
+    height:30px;
+    border-radius:50%;
+    background:var(--accent);
+    box-shadow:0 8px 22px rgba(255,138,61,.35);
+  }
+
+  @media (pointer: coarse){
+    #joyBase{display:block}
+  }
+  @media (pointer: fine){
+    #joyBase{display:none !important}
+  }
+
+  .overlay{
+    position:fixed;
+    inset:0;
+    z-index:50;
+    display:none;
+    align-items:center;
+    justify-content:center;
+    background:rgba(5,5,10,.72);
+    backdrop-filter:blur(12px);
+    padding:20px;
+  }
+
+  .card{
+    width:min(460px, 100%);
+    border-radius:22px;
+    background:linear-gradient(180deg, rgba(24,18,13,.96), rgba(12,12,18,.96));
+    border:1px solid rgba(255,255,255,.10);
+    box-shadow:0 20px 55px rgba(0,0,0,.38);
+    padding:22px;
+    animation:pop .2s ease;
+    text-align:center;
+  }
+
+  @keyframes pop{
+    from{opacity:0; transform:translateY(14px) scale(.98)}
+    to{opacity:1; transform:translateY(0) scale(1)}
+  }
+
+  .card h2{
+    margin:0 0 8px;
+    font-size:24px;
+  }
+
+  .card p{
+    margin:0 0 16px;
+    color:var(--muted);
+    line-height:1.5;
+  }
+
+  .card button{
+    border:0;
+    border-radius:14px;
+    min-height:48px;
+    padding:0 16px;
+    font-weight:800;
+    cursor:pointer;
+    background:linear-gradient(180deg, #ffb36b, var(--accent));
+    color:#1a1007;
+    box-shadow:0 10px 24px rgba(255,138,61,.22);
+  }
+
+  .card .row{
+    display:grid;
+    grid-template-columns:1fr 1fr;
+    gap:10px;
+  }
+
+  .card .ghost{
+    background:rgba(255,255,255,.06);
+    color:var(--text);
+    border:1px solid rgba(255,255,255,.10);
+    box-shadow:none;
+  }
+
+  @media (max-width: 640px){
+    #ui{
+      min-width:210px;
+      max-width:calc(100vw - 20px);
+    }
+    .card .row{
+      grid-template-columns:1fr;
+    }
+  }
 </style>
 </head>
 <body>
+  <div id="ui">
+    <div id="uiTop">
+      <b>Circle IO</b>
+      <button id="f3Btn" type="button">F3</button>
+    </div>
+    <div class="stat-row"><span>Level</span><span id="levelText">1</span></div>
+    <div class="stat-row"><span>Size</span><span id="sizeText">10</span></div>
+    <div class="stat-row"><span>Money</span><span id="moneyText">0</span></div>
+    <div id="barWrap"><div id="fill"></div></div>
+    <div id="debugPanel">
+      <h3>Debug Mode</h3>
+      <div id="debugInfo"></div>
+    </div>
+  </div>
 
-<div id="ui">
-<b>Circle IO</b><br>
-Size: <span id="size">10</span><br>
-Coins: <span id="coins">0</span>
+  <div id="joyBase" aria-hidden="true">
+    <div id="joyStick"></div>
+  </div>
 
-<div id="bar"><div id="fill"></div></div>
-</div>
+  <div id="loadingOverlay" class="overlay">
+    <div class="card">
+      <h2>Loading...</h2>
+      <p id="loadingText">Preparing the world.</p>
+    </div>
+  </div>
 
-<div id="joyBase">
-<div id="joyStick"></div>
-</div>
+  <div id="gameOverOverlay" class="overlay">
+    <div class="card">
+      <h2>You got eaten</h2>
+      <p id="gameOverText">Try again and grow bigger.</p>
+      <div class="row">
+        <button id="retryBtn" type="button">Retry</button>
+        <button id="closeRetryBtn" type="button" class="ghost">Close</button>
+      </div>
+    </div>
+  </div>
 
-<canvas id="game"></canvas>
+  <canvas id="game"></canvas>
 
 <script>
-const canvas=document.getElementById("game");
-const ctx=canvas.getContext("2d");
+(() => {
+  const canvas = document.getElementById('game');
+  const ctx = canvas.getContext('2d');
 
-canvas.width=innerWidth;
-canvas.height=innerHeight;
+  const uiLevel = document.getElementById('levelText');
+  const uiSize = document.getElementById('sizeText');
+  const uiMoney = document.getElementById('moneyText');
+  const uiFill = document.getElementById('fill');
+  const debugPanel = document.getElementById('debugPanel');
+  const debugInfo = document.getElementById('debugInfo');
+  const f3Btn = document.getElementById('f3Btn');
 
-/* CAMERA */
-let cam={x:0,y:0};
+  const loadingOverlay = document.getElementById('loadingOverlay');
+  const loadingText = document.getElementById('loadingText');
+  const gameOverOverlay = document.getElementById('gameOverOverlay');
+  const gameOverText = document.getElementById('gameOverText');
+  const retryBtn = document.getElementById('retryBtn');
+  const closeRetryBtn = document.getElementById('closeRetryBtn');
 
-/* PLAYER */
-let player={
-x:0,y:0,r:10,speed:3
-};
+  const joyBase = document.getElementById('joyBase');
+  const joyStick = document.getElementById('joyStick');
 
-let coins=0;
+  const MONEY_KEY = 'circleio_money_v8';
 
-/* FOOD */
-let food=[];
-for(let i=0;i<150;i++) spawnFood();
+  const isTouch =
+    matchMedia('(pointer: coarse)').matches ||
+    'ontouchstart' in window ||
+    navigator.maxTouchPoints > 0;
 
-function spawnFood(){
-food.push({
-x:(Math.random()-0.5)*3000,
-y:(Math.random()-0.5)*3000,
-r:Math.random()*4+2,
-color:`hsl(${Math.random()*360},80%,60%)`
-});
-}
+  if (!isTouch) joyBase.style.display = 'none';
 
-/* BOTS */
-let bots=[];
-for(let i=0;i<20;i++) spawnBot();
+  function resize() {
+    canvas.width = innerWidth;
+    canvas.height = innerHeight;
+  }
+  window.addEventListener('resize', resize);
+  resize();
 
-function spawnBot(){
-bots.push({
-x:(Math.random()-0.5)*3000,
-y:(Math.random()-0.5)*3000,
-r:Math.random()*20+5,
-vx:0,vy:0
-});
-}
+  function clamp(v, min, max) {
+    return Math.max(min, Math.min(max, v));
+  }
 
-/* INPUT */
-let keys={};
+  function rand(min, max) {
+    return Math.random() * (max - min) + min;
+  }
 
-document.addEventListener("keydown",e=>keys[e.key.toLowerCase()]=true);
-document.addEventListener("keyup",e=>keys[e.key.toLowerCase()]=false);
+  function dist(ax, ay, bx, by) {
+    return Math.hypot(ax - bx, ay - by);
+  }
 
-/* JOYSTICK */
-let joy={x:0,y:0,active:false};
+  function sizeColor(r) {
+    if (r < 8) return '#6dff7a';
+    if (r < 14) return '#b8ff6a';
+    if (r < 24) return '#fff56a';
+    if (r < 40) return '#ffcc59';
+    if (r < 70) return '#ff9f4f';
+    if (r < 120) return '#ff724f';
+    if (r < 190) return '#ff5d9a';
+    if (r < 300) return '#a56bff';
+    if (r < 500) return '#67c8ff';
+    return '#ffffff';
+  }
 
-const stick=document.getElementById("joyStick");
-const base=document.getElementById("joyBase");
+  function relationColor(bot) {
+    if (bot.r > player.r * 1.08) return '#ff5959';
+    if (bot.r < player.r * 0.92) return '#65ff79';
+    return '#ffd65a';
+  }
 
-base.addEventListener("touchstart",e=>{
-joy.active=true;
-});
+  function playSound(audio) {
+    if (!audio) return;
+    try {
+      audio.currentTime = 0;
+      audio.play().catch(() => {});
+    } catch {}
+  }
 
-base.addEventListener("touchmove",e=>{
-let t=e.touches[0];
-let rect=base.getBoundingClientRect();
+  const eatSound = new Audio('settings/eat.mp3');
+  const killSound = new Audio('settings/kill.mp3');
+  eatSound.preload = 'auto';
+  killSound.preload = 'auto';
 
-let dx=t.clientX-(rect.left+50);
-let dy=t.clientY-(rect.top+50);
+  let money = Number(localStorage.getItem(MONEY_KEY) || 0);
+  function saveMoney() {
+    localStorage.setItem(MONEY_KEY, String(Math.floor(money)));
+    uiMoney.textContent = Math.floor(money).toString();
+  }
+  saveMoney();
 
-let len=Math.sqrt(dx*dx+dy*dy);
-if(len>40){
-dx=dx/len*40;
-dy=dy/len*40;
-}
+  const WORLD = {
+    chunkSize: 700,
+    loadRadius: 3,
+    keepRadius: 5
+  };
 
-joy.x=dx/40;
-joy.y=dy/40;
+  const player = {
+    x: 0,
+    y: 0,
+    r: 10,
+    speed: 4
+  };
 
-stick.style.transform=`translate(${dx}px,${dy}px)`;
-});
+  const cam = {
+    x: 0,
+    y: 0,
+    zoom: 1
+  };
 
-base.addEventListener("touchend",()=>{
-joy.active=false;
-joy.x=0;joy.y=0;
-stick.style.transform=`translate(0px,0px)`;
-});
+  let gameState = 'loading'; // loading | play | dead
+  let debugEnabled = false;
+  let level = 1;
+  let levelStart = 10;
+  let nextLevel = 24;
 
-/* MOVE */
-function move(){
-if(keys["w"]) player.y-=player.speed;
-if(keys["s"]) player.y+=player.speed;
-if(keys["a"]) player.x-=player.speed;
-if(keys["d"]) player.x+=player.speed;
+  let keys = Object.create(null);
 
-if(joy.active){
-player.x+=joy.x*player.speed*2;
-player.y+=joy.y*player.speed*2;
-}
-}
+  const joy = {
+    x: 0,
+    y: 0,
+    active: false
+  };
 
-/* BOT AI */
-function botAI(b){
-let dx=player.x-b.x;
-let dy=player.y-b.y;
-let dist=Math.sqrt(dx*dx+dy*dy);
+  let foods = [];
+  let bots = [];
+  let effects = [];
+  const chunkFoods = new Map();
 
-if(b.r>player.r){
-b.vx-=dx/dist*0.2;
-b.vy-=dy/dist*0.2;
-}else{
-b.vx+=dx/dist*0.1;
-b.vy+=dy/dist*0.1;
-}
+  let playerShield = 0;
+  let targetBotCount = 18;
 
-/* drift */
-b.vx*=0.95;
-b.vy*=0.95;
+  let fps = 0;
+  let lastFpsTick = performance.now();
+  let frameCounter = 0;
 
-b.x+=b.vx;
-b.y+=b.vy;
-}
+  function computeNextLevelThreshold(current) {
+    return Math.floor(current * 1.38 + 10);
+  }
 
-/* COLLISIONS */
-function collide(){
-/* food */
-for(let i=0;i<food.length;i++){
-let f=food[i];
-let dx=player.x-f.x;
-let dy=player.y-f.y;
-let d=Math.sqrt(dx*dx+dy*dy);
+  function updateBotTargetCount() {
+    targetBotCount = clamp(18 + Math.floor(level * 1.7), 18, 72);
+  }
 
-if(d<player.r){
-player.r+=0.25;
-food.splice(i,1);
-spawnFood();
-}
-}
+  function levelProgress() {
+    const range = Math.max(1, nextLevel - levelStart);
+    return clamp((player.r - levelStart) / range, 0, 1);
+  }
 
-/* bots */
-for(let i=0;i<bots.length;i++){
-let b=bots[i];
-let dx=player.x-b.x;
-let dy=player.y-b.y;
-let d=Math.sqrt(dx*dx+dy*dy);
+  function addMoney(amount) {
+    money += amount;
+    saveMoney();
+  }
 
-/* eat bot */
-if(d<player.r && player.r>b.r){
-player.r+=b.r*0.3;
-bots.splice(i,1);
-spawnBot();
-}
+  function spawnBurst(x, y, count, color, power = 1) {
+    for (let i = 0; i < count; i++) {
+      effects.push({
+        x,
+        y,
+        vx: rand(-2.8, 2.8) * power,
+        vy: rand(-2.8, 2.8) * power,
+        r: rand(2, 5) * power,
+        life: rand(18, 28),
+        color,
+        ring: false
+      });
+    }
 
-/* DIE */
-if(d<player.r && b.r>player.r){
-resetGame();
-}
-}
-}
+    effects.push({
+      x,
+      y,
+      vx: 0,
+      vy: 0,
+      r: 2,
+      life: 16,
+      color,
+      ring: true,
+      maxR: 26 * power
+    });
+  }
 
-/* RESET */
-function resetGame(){
-player.x=0;
-player.y=0;
-player.r=10;
-}
+  function chunkKey(cx, cy) {
+    return `${cx},${cy}`;
+  }
 
-/* DRAW */
-function draw(){
-ctx.clearRect(0,0,canvas.width,canvas.height);
+  function currentChunk() {
+    return {
+      cx: Math.floor(player.x / WORLD.chunkSize),
+      cy: Math.floor(player.y / WORLD.chunkSize)
+    };
+  }
 
-/* camera follow */
-cam.x+=(player.x-cam.x)*0.08;
-cam.y+=(player.y-cam.y)*0.08;
+  function clearWorld() {
+    foods = [];
+    bots = [];
+    effects = [];
+    chunkFoods.clear();
+  }
 
-/* FOOD */
-for(let f of food){
-ctx.beginPath();
-ctx.arc(f.x-cam.x+canvas.width/2,f.y-cam.y+canvas.height/2,f.r,0,Math.PI*2);
-ctx.fillStyle=f.color;
-ctx.fill();
-}
+  function resetPlayerState() {
+    player.x = 0;
+    player.y = 0;
+    player.r = 10;
+    level = 1;
+    levelStart = 10;
+    nextLevel = 24;
+    playerShield = 180;
+    updateBotTargetCount();
+  }
 
-/* BOTS */
-for(let b of bots){
-botAI(b);
+  function generateChunk(cx, cy) {
+    const key = chunkKey(cx, cy);
+    if (chunkFoods.has(key)) return;
 
-ctx.beginPath();
-ctx.arc(b.x-cam.x+canvas.width/2,b.y-cam.y+canvas.height/2,b.r,0,Math.PI*2);
-ctx.fillStyle=b.r>player.r?"red":"lime";
-ctx.fill();
-}
+    const arr = [];
+    const far = Math.hypot(cx, cy);
 
-/* PLAYER */
-ctx.beginPath();
-ctx.arc(canvas.width/2,canvas.height/2,player.r,0,Math.PI*2);
-ctx.fillStyle="white";
-ctx.fill();
-}
+    const count = clamp(Math.floor(18 + far * 1.15 + rand(0, 12)), 18, 140);
+    const sizeBoost = 1 + Math.min(far * 0.08, 8);
+    const bigChance = clamp(0.08 + far * 0.003, 0.08, 0.36);
 
-/* LOOP */
-function loop(){
-move();
-collide();
-draw();
+    for (let i = 0; i < count; i++) {
+      const isBig = Math.random() < bigChance;
+      const r = isBig
+        ? rand(8, 18) * sizeBoost
+        : rand(2, 5) * sizeBoost;
 
-/* UI */
-document.getElementById("size").innerText=Math.floor(player.r);
-document.getElementById("coins").innerText=Math.floor(player.r);
+      const food = {
+        x: cx * WORLD.chunkSize + rand(20, WORLD.chunkSize - 20),
+        y: cy * WORLD.chunkSize + rand(20, WORLD.chunkSize - 20),
+        r,
+        baseR: r,
+        vx: rand(-0.35, 0.35),
+        vy: rand(-0.35, 0.35),
+        chunkX: cx,
+        chunkY: cy,
+        chunkKey: key,
+        big: isBig,
+        color: sizeColor(r)
+      };
 
-/* XP BAR */
-document.getElementById("fill").style.width=Math.min(player.r*2,100)+"%";
+      arr.push(food);
+      foods.push(food);
+    }
 
-requestAnimationFrame(loop);
-}
+    chunkFoods.set(key, arr);
+  }
 
-loop();
+  function unloadChunk(key) {
+    const arr = chunkFoods.get(key);
+    if (!arr) return;
+    foods = foods.filter(f => f.chunkKey !== key);
+    chunkFoods.delete(key);
+  }
+
+  function updateChunks() {
+    const { cx, cy } = currentChunk();
+
+    for (let x = cx - WORLD.loadRadius; x <= cx + WORLD.loadRadius; x++) {
+      for (let y = cy - WORLD.loadRadius; y <= cy + WORLD.loadRadius; y++) {
+        const key = chunkKey(x, y);
+        if (!chunkFoods.has(key)) generateChunk(x, y);
+      }
+    }
+
+    for (const key of [...chunkFoods.keys()]) {
+      const [x, y] = key.split(',').map(Number);
+      if (Math.abs(x - cx) > WORLD.keepRadius || Math.abs(y - cy) > WORLD.keepRadius) {
+        unloadChunk(key);
+      }
+    }
+  }
+
+  function spawnBot() {
+    const angle = rand(0, Math.PI * 2);
+    const radius = rand(520, 1700);
+    const personalitySet = ['aggressive', 'coward', 'scavenger', 'wanderer', 'chaotic'];
+    const personality = personalitySet[Math.floor(Math.random() * personalitySet.length)];
+
+    const bigChance = clamp(0.22 + level * 0.01, 0.22, 0.75);
+    const isBig = Math.random() < bigChance;
+
+    const sizeScale = 1 + level * 0.03;
+    let r = isBig
+      ? player.r * rand(1.1, 1.9) * sizeScale
+      : player.r * rand(0.22, 0.95);
+
+    r = clamp(r, 4, Math.max(46, player.r * 3));
+
+    bots.push({
+      x: player.x + Math.cos(angle) * radius,
+      y: player.y + Math.sin(angle) * radius,
+      r,
+      vx: 0,
+      vy: 0,
+      scale: 1,
+      alpha: 1,
+      dying: false,
+      personality,
+      moodTime: Math.floor(rand(30, 120)),
+      mood: 'wander',
+      target: null,
+      wanderX: player.x + rand(-1000, 1000),
+      wanderY: player.y + rand(-1000, 1000)
+    });
+  }
+
+  function maintainBots() {
+    while (bots.length < targetBotCount) spawnBot();
+  }
+
+  function chooseBotAction(bot) {
+    bot.moodTime--;
+    if (bot.moodTime > 0 && bot.target) return;
+
+    bot.moodTime = Math.floor(rand(30, 110));
+
+    const playerD = dist(bot.x, bot.y, player.x, player.y);
+    const playerBigger = player.r > bot.r * 1.08;
+    const playerSmaller = bot.r > player.r * 1.08;
+
+    let nearestBigThreat = null;
+    let nearestSmallPreyBot = null;
+    let nearestFood = null;
+    let bigThreatD = Infinity;
+    let smallPreyD = Infinity;
+    let foodD = Infinity;
+
+    for (const other of bots) {
+      if (other === bot || other.dying) continue;
+      const d = dist(bot.x, bot.y, other.x, other.y);
+      if (other.r > bot.r * 1.12 && d < bigThreatD) {
+        bigThreatD = d;
+        nearestBigThreat = other;
+      }
+      if (other.r < bot.r * 0.90 && d < smallPreyD) {
+        smallPreyD = d;
+        nearestSmallPreyBot = other;
+      }
+    }
+
+    for (const f of foods) {
+      const d = dist(bot.x, bot.y, f.x, f.y);
+      if (d < foodD) {
+        foodD = d;
+        nearestFood = f;
+      }
+    }
+
+    const goAggro = bot.personality === 'aggressive' || bot.personality === 'chaotic';
+    const goSafe = bot.personality === 'coward' || bot.personality === 'wanderer';
+    const goFood = bot.personality === 'scavenger' || bot.personality === 'wanderer' || bot.personality === 'chaotic';
+
+    if (nearestBigThreat && bigThreatD < 360) {
+      bot.mood = 'flee-bot';
+      bot.target = nearestBigThreat;
+      return;
+    }
+
+    if (playerD < 420) {
+      if (playerBigger && (goSafe || Math.random() < 0.7)) {
+        bot.mood = 'flee-player';
+        bot.target = player;
+        return;
+      }
+
+      if (playerSmaller && goAggro && Math.random() < 0.8) {
+        bot.mood = 'hunt-player';
+        bot.target = player;
+        return;
+      }
+    }
+
+    if (nearestSmallPreyBot && goAggro && Math.random() < 0.72) {
+      bot.mood = 'hunt-bot';
+      bot.target = nearestSmallPreyBot;
+      return;
+    }
+
+    if (nearestFood && goFood) {
+      bot.mood = 'eat-food';
+      bot.target = nearestFood;
+      return;
+    }
+
+    bot.mood = 'wander';
+    bot.target = {
+      x: bot.wanderX + rand(-220, 220),
+      y: bot.wanderY + rand(-220, 220)
+    };
+  }
+
+  function movePlayer() {
+    const currentSpeed = clamp(4.8 - Math.log10(player.r + 1) * 0.28, 1.6, 4.8);
+
+    if (keys['w']) player.y -= currentSpeed;
+    if (keys['s']) player.y += currentSpeed;
+    if (keys['a']) player.x -= currentSpeed;
+    if (keys['d']) player.x += currentSpeed;
+
+    if (joy.active) {
+      player.x += joy.x * currentSpeed * 2;
+      player.y += joy.y * currentSpeed * 2;
+    }
+  }
+
+  function updateFoods() {
+    for (let i = foods.length - 1; i >= 0; i--) {
+      const f = foods[i];
+
+      f.x += f.vx;
+      f.y += f.vy;
+      f.vx *= 0.995;
+      f.vy *= 0.995;
+
+      const minX = f.chunkX * WORLD.chunkSize + 10;
+      const maxX = (f.chunkX + 1) * WORLD.chunkSize - 10;
+      const minY = f.chunkY * WORLD.chunkSize + 10;
+      const maxY = (f.chunkY + 1) * WORLD.chunkSize - 10;
+
+      if (f.x <= minX + f.r) {
+        f.x = minX + f.r;
+        f.vx *= -1;
+      }
+      if (f.x >= maxX - f.r) {
+        f.x = maxX - f.r;
+        f.vx *= -1;
+      }
+      if (f.y <= minY + f.r) {
+        f.y = minY + f.r;
+        f.vy *= -1;
+      }
+      if (f.y >= maxY - f.r) {
+        f.y = maxY - f.r;
+        f.vy *= -1;
+      }
+
+      const d = dist(player.x, player.y, f.x, f.y);
+      if (d < player.r + f.r * 0.8) {
+        player.r += f.big ? f.r * 0.08 : f.r * 0.03;
+        addMoney(f.big ? Math.max(1, Math.floor(f.r * 0.06)) : 1);
+        playSound(eatSound);
+        spawnBurst(f.x, f.y, f.big ? 12 : 7, f.color, f.big ? 1.2 : 1);
+        foods.splice(i, 1);
+      }
+    }
+  }
+
+  function steerToward(bot, tx, ty, power) {
+    const dx = tx - bot.x;
+    const dy = ty - bot.y;
+    const d = Math.hypot(dx, dy) + 0.001;
+    bot.vx += (dx / d) * power;
+    bot.vy += (dy / d) * power;
+  }
+
+  function steerAway(bot, tx, ty, power) {
+    const dx = bot.x - tx;
+    const dy = bot.y - ty;
+    const d = Math.hypot(dx, dy) + 0.001;
+    bot.vx += (dx / d) * power;
+    bot.vy += (dy / d) * power;
+  }
+
+  function updateBots() {
+    for (const bot of bots) {
+      if (bot.dying) {
+        bot.scale *= 0.88;
+        bot.alpha *= 0.92;
+        continue;
+      }
+
+      chooseBotAction(bot);
+
+      if (bot.mood === 'flee-player') steerAway(bot, player.x, player.y, 0.6);
+      else if (bot.mood === 'hunt-player') steerToward(bot, player.x, player.y, 0.5);
+      else if (bot.mood === 'flee-bot' && bot.target) steerAway(bot, bot.target.x, bot.target.y, 0.55);
+      else if (bot.mood === 'hunt-bot' && bot.target) steerToward(bot, bot.target.x, bot.target.y, 0.45);
+      else if (bot.mood === 'eat-food' && bot.target) steerToward(bot, bot.target.x, bot.target.y, 0.35);
+      else if (bot.target) steerToward(bot, bot.target.x, bot.target.y, 0.12);
+
+      const worldScale = 1 + level * 0.012;
+      bot.vx *= 0.92;
+      bot.vy *= 0.92;
+      bot.x += bot.vx * worldScale;
+      bot.y += bot.vy * worldScale;
+    }
+  }
+
+  function resolveBotVsBot() {
+    for (let i = 0; i < bots.length; i++) {
+      const a = bots[i];
+      if (a.dying) continue;
+
+      for (let j = i + 1; j < bots.length; j++) {
+        const b = bots[j];
+        if (b.dying) continue;
+
+        const d = dist(a.x, a.y, b.x, b.y);
+        const minD = a.r + b.r;
+
+        if (d < minD * 0.9) {
+          const larger = a.r >= b.r ? a : b;
+          const smaller = a.r >= b.r ? b : a;
+
+          if (larger.r > smaller.r * 1.08) {
+            smaller.dying = true;
+            larger.r += smaller.r * 0.06;
+            playSound(killSound);
+            spawnBurst(smaller.x, smaller.y, 10, relationColor(larger), 1);
+          } else {
+            const push = (minD - d) * 0.02;
+            const dx = (a.x - b.x) / (d + 0.001);
+            const dy = (a.y - b.y) / (d + 0.001);
+            a.vx += dx * push;
+            a.vy += dy * push;
+            b.vx -= dx * push;
+            b.vy -= dy * push;
+          }
+        }
+      }
+    }
+  }
+
+  function resolvePlayerCollisions() {
+    if (playerShield > 0) playerShield--;
+
+    for (let i = bots.length - 1; i >= 0; i--) {
+      const bot = bots[i];
+      if (bot.dying) continue;
+
+      const d = dist(player.x, player.y, bot.x, bot.y);
+      const hit = d < player.r + bot.r * 0.82;
+
+      if (!hit) continue;
+
+      if (playerShield > 0) continue;
+
+      if (player.r > bot.r) {
+        bot.dying = true;
+        player.r += bot.r * 0.08;
+        addMoney(Math.max(1, Math.floor(bot.r * 0.2)));
+        playSound(killSound);
+        spawnBurst(bot.x, bot.y, 15, relationColor(bot), 1.1);
+      } else if (bot.r > player.r) {
+        gameState = 'dead';
+        gameOverText.textContent = `Level ${level}  •  Money ${Math.floor(money)} saved`;
+        gameOverOverlay.style.display = 'flex';
+        return;
+      }
+    }
+  }
+
+  function updateEntities() {
+    for (let i = bots.length - 1; i >= 0; i--) {
+      const bot = bots[i];
+      if (bot.dying && (bot.scale < 0.05 || bot.alpha < 0.05)) {
+        bots.splice(i, 1);
+      }
+    }
+
+    while (bots.length < targetBotCount) spawnBot();
+
+    for (const e of effects) {
+      e.x += e.vx;
+      e.y += e.vy;
+      e.vx *= 0.96;
+      e.vy *= 0.96;
+      e.life -= 1;
+    }
+
+    effects = effects.filter(e => e.life > 0);
+  }
+
+  function updateLevelSystem() {
+    while (player.r >= nextLevel) {
+      level++;
+      levelStart = nextLevel;
+      nextLevel = computeNextLevelThreshold(nextLevel);
+      updateBotTargetCount();
+    }
+  }
+
+  function updateWorld() {
+    movePlayer();
+    updateChunks();
+    updateFoods();
+    updateBots();
+    resolveBotVsBot();
+    resolvePlayerCollisions();
+    updateEntities();
+    updateLevelSystem();
+  }
+
+  function drawGrid() {
+    const step = 120;
+    const left = cam.x - canvas.width / (2 * cam.zoom);
+    const right = cam.x + canvas.width / (2 * cam.zoom);
+    const top = cam.y - canvas.height / (2 * cam.zoom);
+    const bottom = cam.y + canvas.height / (2 * cam.zoom);
+
+    const startX = Math.floor(left / step) * step;
+    const endX = Math.ceil(right / step) * step;
+    const startY = Math.floor(top / step) * step;
+    const endY = Math.ceil(bottom / step) * step;
+
+    ctx.strokeStyle = 'rgba(255,255,255,0.045)';
+    ctx.lineWidth = 1;
+
+    for (let x = startX; x <= endX; x += step) {
+      ctx.beginPath();
+      ctx.moveTo(x, top - step * 2);
+      ctx.lineTo(x, bottom + step * 2);
+      ctx.stroke();
+    }
+
+    for (let y = startY; y <= endY; y += step) {
+      ctx.beginPath();
+      ctx.moveTo(left - step * 2, y);
+      ctx.lineTo(right + step * 2, y);
+      ctx.stroke();
+    }
+  }
+
+  function drawFoods() {
+    for (const f of foods) {
+      ctx.beginPath();
+      ctx.arc(f.x, f.y, f.r, 0, Math.PI * 2);
+      ctx.fillStyle = f.color;
+      ctx.fill();
+    }
+  }
+
+  function drawBots() {
+    for (const bot of bots) {
+      ctx.save();
+      ctx.globalAlpha = bot.alpha;
+      const c = relationColor(bot);
+      ctx.beginPath();
+      ctx.arc(bot.x, bot.y, bot.r * bot.scale, 0, Math.PI * 2);
+      ctx.fillStyle = bot.dying ? '#ffffff' : c;
+      ctx.fill();
+      ctx.restore();
+
+      if (debugEnabled) {
+        ctx.save();
+        ctx.strokeStyle = c;
+        ctx.globalAlpha = 0.8;
+        ctx.beginPath();
+        ctx.moveTo(player.x, player.y);
+        ctx.lineTo(bot.x, bot.y);
+        ctx.stroke();
+        ctx.restore();
+
+        ctx.save();
+        ctx.fillStyle = '#fff';
+        ctx.font = `${Math.max(10, Math.min(18, bot.r * 0.18))}px system-ui`;
+        ctx.textAlign = 'center';
+        ctx.textBaseline = 'middle';
+        ctx.fillText(Math.floor(bot.r), bot.x, bot.y - bot.r * 0.55);
+        ctx.restore();
+      }
+    }
+  }
+
+  function drawPlayer() {
+    ctx.beginPath();
+    ctx.arc(player.x, player.y, player.r, 0, Math.PI * 2);
+    ctx.fillStyle = '#ffffff';
+    ctx.fill();
+
+    ctx.fillStyle = '#ffffff';
+    ctx.font = `${Math.max(12, Math.min(28, player.r * 0.34))}px system-ui`;
+    ctx.textAlign = 'center';
+    ctx.textBaseline = 'middle';
+    ctx.fillText(Math.floor(player.r), player.x, player.y - player.r - 16);
+  }
+
+  function drawEffects() {
+    for (const e of effects) {
+      if (e.ring) {
+        ctx.save();
+        ctx.globalAlpha = clamp(e.life / 16, 0, 1);
+        ctx.beginPath();
+        ctx.arc(e.x, e.y, e.maxR * (1 - e.life / 16), 0, Math.PI * 2);
+        ctx.strokeStyle = e.color;
+        ctx.lineWidth = 2;
+        ctx.stroke();
+        ctx.restore();
+      } else {
+        ctx.save();
+        ctx.globalAlpha = clamp(e.life / 28, 0, 1);
+        ctx.beginPath();
+        ctx.arc(e.x, e.y, e.r, 0, Math.PI * 2);
+        ctx.fillStyle = e.color;
+        ctx.fill();
+        ctx.restore();
+      }
+    }
+  }
+
+  function drawWorld() {
+    ctx.clearRect(0, 0, canvas.width, canvas.height);
+
+    cam.x += (player.x - cam.x) * 0.08;
+    cam.y += (player.y - cam.y) * 0.08;
+
+    const targetZoom = clamp(1.18 - Math.log10(player.r + 1) * 0.12, 0.22, 1.18);
+    cam.zoom += (targetZoom - cam.zoom) * 0.08;
+
+    ctx.save();
+    ctx.translate(canvas.width / 2, canvas.height / 2);
+    ctx.scale(cam.zoom, cam.zoom);
+    ctx.translate(-cam.x, -cam.y);
+
+    drawGrid();
+    drawFoods();
+    drawBots();
+    drawEffects();
+    drawPlayer();
+
+    ctx.restore();
+  }
+
+  function updateDebug() {
+    if (!debugEnabled) {
+      debugPanel.style.display = 'none';
+      return;
+    }
+
+    debugPanel.style.display = 'block';
+
+    const lines = [];
+    lines.push(`State: ${gameState}`);
+    lines.push(`FPS: ${fps}`);
+    lines.push(`Bots: ${bots.length}`);
+    lines.push(`Foods: ${foods.length}`);
+    lines.push(`Player speed: ${clamp(4.8 - Math.log10(player.r + 1) * 0.28, 1.6, 4.8).toFixed(2)}`);
+    lines.push(`Zoom: ${cam.zoom.toFixed(2)}`);
+    lines.push(`Shield: ${playerShield}`);
+    lines.push('');
+    lines.push('First bots:');
+
+    bots.slice(0, 12).forEach((b, i) => {
+      lines.push(
+        `#${i + 1} size=${Math.floor(b.r)} mood=${b.mood}${b.dying ? ' dying' : ''}`
+      );
+    });
+
+    debugInfo.innerHTML = lines.map(t => `<div class="line">${t}</div>`).join('');
+  }
+
+  function updateFPS(now) {
+    frameCounter++;
+    if (now - lastFpsTick >= 1000) {
+      fps = frameCounter;
+      frameCounter = 0;
+      lastFpsTick = now;
+    }
+  }
+
+  function beginLoading(text, done) {
+    gameState = 'loading';
+    loadingText.textContent = text || 'Loading the world.';
+    loadingOverlay.style.display = 'flex';
+    gameOverOverlay.style.display = 'none';
+
+    setTimeout(() => {
+      if (typeof done === 'function') done();
+      loadingOverlay.style.display = 'none';
+      gameState = 'play';
+      playerShield = 180;
+    }, 900);
+  }
+
+  function startNewRun() {
+    clearWorld();
+    resetPlayerState();
+    maintainBots();
+    updateChunks();
+  }
+
+  function retryGame() {
+    beginLoading('Resetting the world.', () => {
+      startNewRun();
+      saveMoney();
+    });
+  }
+
+  document.addEventListener('keydown', e => {
+    keys[e.key.toLowerCase()] = true;
+
+    if (e.key === 'F3') {
+      e.preventDefault();
+      debugEnabled = !debugEnabled;
+      updateDebug();
+    }
+  });
+
+  document.addEventListener('keyup', e => {
+    keys[e.key.toLowerCase()] = false;
+  });
+
+  f3Btn.addEventListener('click', () => {
+    debugEnabled = !debugEnabled;
+    updateDebug();
+  });
+
+  if (isTouch) {
+    joyBase.style.display = 'block';
+
+    function updateJoystickFromTouch(touch) {
+      const rect = joyBase.getBoundingClientRect();
+      const cx = rect.left + rect.width / 2;
+      const cy = rect.top + rect.height / 2;
+
+      let dx = touch.clientX - cx;
+      let dy = touch.clientY - cy;
+
+      const max = 45;
+      const len = Math.hypot(dx, dy);
+      if (len > max) {
+        dx = dx / len * max;
+        dy = dy / len * max;
+      }
+
+      joy.x = dx / max;
+      joy.y = dy / max;
+      joyStick.style.transform = `translate(${dx}px, ${dy}px)`;
+    }
+
+    joyBase.addEventListener('touchstart', e => {
+      joy.active = true;
+      updateJoystickFromTouch(e.touches[0]);
+    }, { passive: true });
+
+    joyBase.addEventListener('touchmove', e => {
+      if (!joy.active) return;
+      updateJoystickFromTouch(e.touches[0]);
+    }, { passive: true });
+
+    joyBase.addEventListener('touchend', () => {
+      joy.active = false;
+      joy.x = 0;
+      joy.y = 0;
+      joyStick.style.transform = 'translate(0px, 0px)';
+    });
+  }
+
+  retryBtn.addEventListener('click', () => {
+    retryGame();
+  });
+
+  closeRetryBtn.addEventListener('click', () => {
+    gameOverOverlay.style.display = 'none';
+  });
+
+  function gameLoop(now) {
+    updateFPS(now);
+
+    if (gameState === 'play') {
+      updateWorld();
+    }
+
+    drawWorld();
+    updateDebug();
+
+    uiLevel.textContent = level;
+    uiSize.textContent = Math.floor(player.r);
+    uiMoney.textContent = Math.floor(money).toString();
+    uiFill.style.width = `${levelProgress() * 100}%`;
+
+    requestAnimationFrame(gameLoop);
+  }
+
+  beginLoading('Generating infinite chunks.', () => {
+    startNewRun();
+  });
+
+  requestAnimationFrame(gameLoop);
+})();
 </script>
-
 </body>
 </html>
