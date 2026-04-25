@@ -1,448 +1,300 @@
-<!DOCTYPE html><html lang="en">
+<!DOCTYPE html>
+<html>
 <head>
-<meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0"><title>The Skeld Hub</title><link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;800&display=swap" rel="stylesheet"><style>
-*{
-  margin:0;
-  padding:0;
-  box-sizing:border-box;
-  -webkit-tap-highlight-color:transparent;
-  user-select:none;
-}
-
+<title>Circle IO Upgrade</title>
+<meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+<style>
 body{
-  font-family:Inter,sans-serif;
-  background:black;
-  color:white;
-  overflow-x:hidden;
+margin:0;
+overflow:hidden;
+background:#0b0b12;
+font-family:system-ui;
+color:white;
 }
 
-canvas{
-  position:fixed;
-  inset:0;
-  z-index:-1;
+/* UI */
+#ui{
+position:fixed;
+top:10px;
+left:10px;
+z-index:10;
+background:rgba(255,255,255,0.06);
+padding:10px;
+border-radius:12px;
+backdrop-filter:blur(10px);
 }
 
-#loading{
-  position:fixed;
-  inset:0;
-  background:black;
-  display:flex;
-  flex-direction:column;
-  justify-content:center;
-  align-items:center;
-  z-index:999;
+#bar{
+width:200px;
+height:10px;
+background:#222;
+border-radius:10px;
+overflow:hidden;
+margin-top:5px;
 }
 
-.loader{
-  width:40px;
-  height:40px;
-  border:3px solid #25EDC6;
-  border-top:3px solid transparent;
-  border-radius:50%;
-  animation:spin 1s linear infinite;
-  margin-bottom:10px;
+#fill{
+height:100%;
+width:10%;
+background:#ff8a3d;
 }
 
-@keyframes spin{100%{transform:rotate(360deg);}}
-
-.hero{
-  min-height:100vh;
-  display:flex;
-  justify-content:center;
-  align-items:center;
-  padding:20px;
+/* joystick */
+#joyBase{
+position:fixed;
+bottom:30px;
+left:30px;
+width:100px;
+height:100px;
+background:rgba(255,255,255,0.05);
+border-radius:50%;
+touch-action:none;
 }
 
-.wrapper{
-  width:100%;
-  max-width:800px;
+#joyStick{
+position:absolute;
+top:35px;
+left:35px;
+width:30px;
+height:30px;
+background:#ff8a3d;
+border-radius:50%;
 }
 
-.card{
-  width:100%;
-  background:rgba(255,255,255,0.05);
-  border:1px solid rgba(255,255,255,0.1);
-  border-radius:18px;
-  padding:20px;
-  backdrop-filter:blur(10px);
-  margin-bottom:20px;
-  opacity:0;
-  transform:translateY(24px) scale(0.98);
-}
+/* canvas */
+canvas{display:block;}
+</style>
+</head>
+<body>
 
-body.loaded .card{
-  animation:cardIn .7s ease forwards;
-}
+<div id="ui">
+<b>Circle IO</b><br>
+Size: <span id="size">10</span><br>
+Coins: <span id="coins">0</span>
 
-body.loaded .card:nth-child(1){animation-delay:.05s;}
-body.loaded .card:nth-child(2){animation-delay:.18s;}
-body.loaded .card:nth-child(3){animation-delay:.31s;}
-
-@keyframes cardIn{
-  from{opacity:0;transform:translateY(24px) scale(0.98);}
-  to{opacity:1;transform:translateY(0) scale(1);}
-}
-
-.thumb img{
-  width:100%;
-  height:220px;
-  object-fit:cover;
-  border-radius:12px;
-  margin-bottom:15px;
-}
-
-h1{font-size:32px;margin-bottom:10px;}
-h2{font-size:24px;margin-bottom:8px;}
-
-.desc{
-  font-size:14px;
-  opacity:.85;
-  line-height:1.6;
-}
-
-.buttons{
-  display:flex;
-  gap:10px;
-  margin-top:15px;
-  flex-wrap:wrap;
-}
-
-button{
-  border:none;
-  cursor:pointer;
-  font-weight:600;
-  transition:transform .2s ease, box-shadow .2s ease, opacity .2s ease;
-}
-
-button:hover{transform:translateY(-1px) scale(1.03);}
-
-.play{
-  background:#25EDC6;
-  color:black;
-  padding:10px 16px;
-  border-radius:12px;
-}
-
-.more{
-  background:transparent;
-  border:1px solid #25EDC6;
-  color:#25EDC6;
-  padding:10px 16px;
-  border-radius:12px;
-}
-
-#moreBox{
-  max-height:0;
-  overflow:hidden;
-  opacity:0;
-  transform:translateY(-10px);
-  transition:max-height .45s ease, opacity .35s ease, transform .35s ease, margin-top .35s ease;
-}
-
-#moreBox.open{
-  max-height:260px;
-  opacity:1;
-  transform:translateY(0);
-  margin-top:15px;
-}
-
-#moreBox ul{
-  padding-left:18px;
-  margin-top:8px;
-}
-
-#moreBox li{margin:6px 0;}
-
-.social a{
-  color:#25EDC6;
-  text-decoration:none;
-}
-
-.profileTop{
-  display:flex;
-  justify-content:center;
-  margin:8px 0 16px;
-}
-
-.profileTop img{
-  width:110px;
-  height:110px;
-  border-radius:50%;
-  object-fit:cover;
-  border:3px solid rgba(37,237,198,.8);
-  box-shadow:0 0 24px rgba(37,237,198,.2);
-}
-
-.streamerHeader{
-  display:flex;
-  align-items:center;
-  justify-content:space-between;
-  gap:12px;
-}
-
-.refreshCircle{
-  width:44px;
-  height:44px;
-  border-radius:50%;
-  background:rgba(37,237,198,.12);
-  border:1px solid rgba(37,237,198,.8);
-  color:#25EDC6;
-  display:grid;
-  place-items:center;
-  flex:0 0 auto;
-}
-
-.refreshCircle svg{
-  width:20px;
-  height:20px;
-  transition:transform .35s ease;
-}
-
-.refreshCircle.spinning svg{
-  transform:rotate(360deg);
-}
-
-.streamerBox{
-  display:flex;
-  gap:12px;
-  align-items:center;
-  margin-top:12px;
-  padding:12px;
-  border-radius:14px;
-  background:rgba(255,255,255,.04);
-  border:1px solid rgba(255,255,255,.08);
-  opacity:0;
-  transform:translateY(12px);
-}
-
-.streamerBox.show{
-  animation:streamerPop .35s ease forwards;
-}
-
-@keyframes streamerPop{
-  from{opacity:0;transform:translateY(12px);}
-  to{opacity:1;transform:translateY(0);}
-}
-
-.streamerBox img{
-  width:68px;
-  height:68px;
-  border-radius:14px;
-  object-fit:cover;
-  flex:0 0 auto;
-}
-
-.streamerInfo b{font-size:16px;}
-.streamerInfo p{font-size:13px;opacity:.8;margin-top:2px;}
-
-.streamerActions{
-  display:flex;
-  gap:10px;
-  margin-top:10px;
-  flex-wrap:wrap;
-}
-
-.smallbtn{
-  padding:8px 12px;
-  border-radius:10px;
-  font-size:12px;
-}
-
-@media (max-width:600px){
-  h1{font-size:24px;}
-  .thumb img{height:160px;}
-  .profileTop img{width:92px;height:92px;}
-}
-</style></head>
-<body><audio id="clickSound" src="settings/click.mp3"></audio> <audio id="hoverSound" src="settings/hover.mp3"></audio>
-
-<div id="loading">
-  <div class="loader"></div>
-  <p>Launching The Skeld Hub...</p>
-</div><canvas id="bg"></canvas>
-
-<div class="hero">
-  <div class="wrapper"><!-- CARD 1 -->
-<div class="card">
-  <div class="thumb">
-    <img src="settings/thumbnail.png" alt="thumbnail">
-  </div>
-
-  <h1>The Skeld Hub</h1>
-
-  <p class="desc">
-    Welcome to The Skeld Hub, a community-driven platform where players can connect, enjoy custom game modes inspired by Among Us, and participate in multiplayer events with friends and other members.
-    Join our Discord to take part in events, progression sessions, and community activities built for fun and competition.
-  </p>
-
-  <div class="buttons">
-    <button class="play" onclick="window.open('https://discord.gg/VaTtktbqwD','_blank')">Play Now</button>
-    <button class="more" onclick="toggleMore()">See More</button>
-  </div>
-
-  <div id="moreBox">
-    <h3>More Info</h3>
-    <ul>
-      <li>🎮 Custom Game Modes</li>
-      <li>💬 Discord Community</li>
-      <li>📡 Events & Updates</li>
-      <li>👥 Multiplayer Lobby System</li>
-    </ul>
-  </div>
+<div id="bar"><div id="fill"></div></div>
 </div>
 
-<!-- CARD 2 -->
-<div class="card">
-  <h2>SkyeMoz</h2>
-
-  <div class="profileTop">
-    <img src="settings/SkyeMoz.png" alt="SkyeMoz icon">
-  </div>
-
-  <p class="desc">
-    Creator of this website and founder of Zynix, ZenoX, Moz Studio, and RyzonX. I create content on YouTube and TikTok, and I play Minecraft, Mobile Legends: Bang Bang, and Among Us.
-  </p>
-
-  <p class="social" style="margin-top:12px;line-height:1.8;">
-    TikTok: <a href="https://www.tiktok.com/@skyemozmc" target="_blank">@skyemozmc</a><br>
-    YouTube: <a href="https://www.youtube.com/@SkyeMozMC" target="_blank">@SkyeMozMC</a><br>
-    Discord: SkyeMoz
-  </p>
+<div id="joyBase">
+<div id="joyStick"></div>
 </div>
 
-<!-- CARD 3 -->
-<div class="card">
-  <div class="streamerHeader">
-    <h2>TikTok Streamers 🔥</h2>
-    <button class="refreshCircle" id="refreshBtn" onclick="randomStreamer()" aria-label="Refresh streamer">
-      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
-        <path d="M21 12a9 9 0 1 1-3-6.7"></path>
-        <polyline points="21 3 21 9 15 9"></polyline>
-      </svg>
-    </button>
-  </div>
+<canvas id="game"></canvas>
 
-  <div class="streamerBox" id="streamerBox"></div>
-</div>
+<script>
+const canvas=document.getElementById("game");
+const ctx=canvas.getContext("2d");
 
-  </div>
-</div><script>
-const click=document.getElementById('clickSound');
-const hover=document.getElementById('hoverSound');
-const refreshBtn=document.getElementById('refreshBtn');
-const streamerBox=document.getElementById('streamerBox');
+canvas.width=innerWidth;
+canvas.height=innerHeight;
 
-function playClick(){
-  click.currentTime=0;
-  click.play().catch(()=>{});
+/* CAMERA */
+let cam={x:0,y:0};
+
+/* PLAYER */
+let player={
+x:0,y:0,r:10,speed:3
+};
+
+let coins=0;
+
+/* FOOD */
+let food=[];
+for(let i=0;i<150;i++) spawnFood();
+
+function spawnFood(){
+food.push({
+x:(Math.random()-0.5)*3000,
+y:(Math.random()-0.5)*3000,
+r:Math.random()*4+2,
+color:`hsl(${Math.random()*360},80%,60%)`
+});
 }
 
-function playHover(){
-  hover.currentTime=0;
-  hover.play().catch(()=>{});
+/* BOTS */
+let bots=[];
+for(let i=0;i<20;i++) spawnBot();
+
+function spawnBot(){
+bots.push({
+x:(Math.random()-0.5)*3000,
+y:(Math.random()-0.5)*3000,
+r:Math.random()*20+5,
+vx:0,vy:0
+});
 }
 
-document.querySelectorAll('button').forEach(btn=>{
-  btn.addEventListener('click',playClick);
-  btn.addEventListener('mouseenter',playHover);
+/* INPUT */
+let keys={};
+
+document.addEventListener("keydown",e=>keys[e.key.toLowerCase()]=true);
+document.addEventListener("keyup",e=>keys[e.key.toLowerCase()]=false);
+
+/* JOYSTICK */
+let joy={x:0,y:0,active:false};
+
+const stick=document.getElementById("joyStick");
+const base=document.getElementById("joyBase");
+
+base.addEventListener("touchstart",e=>{
+joy.active=true;
 });
 
-window.addEventListener('load',()=>{
-  setTimeout(()=>{
-    document.getElementById('loading').style.display='none';
-    document.body.classList.add('loaded');
-  },1200);
+base.addEventListener("touchmove",e=>{
+let t=e.touches[0];
+let rect=base.getBoundingClientRect();
+
+let dx=t.clientX-(rect.left+50);
+let dy=t.clientY-(rect.top+50);
+
+let len=Math.sqrt(dx*dx+dy*dy);
+if(len>40){
+dx=dx/len*40;
+dy=dy/len*40;
+}
+
+joy.x=dx/40;
+joy.y=dy/40;
+
+stick.style.transform=`translate(${dx}px,${dy}px)`;
 });
 
-function toggleMore(){
-  const box=document.getElementById('moreBox');
-  box.classList.toggle('open');
+base.addEventListener("touchend",()=>{
+joy.active=false;
+joy.x=0;joy.y=0;
+stick.style.transform=`translate(0px,0px)`;
+});
+
+/* MOVE */
+function move(){
+if(keys["w"]) player.y-=player.speed;
+if(keys["s"]) player.y+=player.speed;
+if(keys["a"]) player.x-=player.speed;
+if(keys["d"]) player.x+=player.speed;
+
+if(joy.active){
+player.x+=joy.x*player.speed*2;
+player.y+=joy.y*player.speed*2;
+}
 }
 
-function animateRefreshButton(){
-  refreshBtn.classList.remove('spinning');
-  void refreshBtn.offsetWidth;
-  refreshBtn.classList.add('spinning');
-  setTimeout(()=>refreshBtn.classList.remove('spinning'),420);
+/* BOT AI */
+function botAI(b){
+let dx=player.x-b.x;
+let dy=player.y-b.y;
+let dist=Math.sqrt(dx*dx+dy*dy);
+
+if(b.r>player.r){
+b.vx-=dx/dist*0.2;
+b.vy-=dy/dist*0.2;
+}else{
+b.vx+=dx/dist*0.1;
+b.vy+=dy/dist*0.1;
 }
 
-// particles
-const canvas=document.getElementById('bg');
-const ctx=canvas.getContext('2d');
+/* drift */
+b.vx*=0.95;
+b.vy*=0.95;
 
-function resizeCanvas(){
-  canvas.width=innerWidth;
-  canvas.height=innerHeight;
-}
-resizeCanvas();
-
-let p=[];
-for(let i=0;i<90;i++){
-  p.push({x:Math.random()*canvas.width,y:Math.random()*canvas.height,r:Math.random()*2,dx:(Math.random()-0.5)*0.5,dy:(Math.random()-0.5)*0.5});
+b.x+=b.vx;
+b.y+=b.vy;
 }
 
-function animate(){
-  ctx.clearRect(0,0,canvas.width,canvas.height);
-  ctx.fillStyle='white';
-  p.forEach(o=>{
-    o.x+=o.dx;
-    o.y+=o.dy;
-    if(o.x<0)o.x=canvas.width;
-    if(o.x>canvas.width)o.x=0;
-    if(o.y<0)o.y=canvas.height;
-    if(o.y>canvas.height)o.y=0;
-    ctx.beginPath();
-    ctx.arc(o.x,o.y,o.r,0,Math.PI*2);
-    ctx.fill();
-  });
-  requestAnimationFrame(animate);
+/* COLLISIONS */
+function collide(){
+/* food */
+for(let i=0;i<food.length;i++){
+let f=food[i];
+let dx=player.x-f.x;
+let dy=player.y-f.y;
+let d=Math.sqrt(dx*dx+dy*dy);
+
+if(d<player.r){
+player.r+=0.25;
+food.splice(i,1);
+spawnFood();
 }
-animate();
-
-window.addEventListener('resize',resizeCanvas);
-
-const streamers=[
-  {name:'riskylit_', img:'settings/pinned.png', tiktok:'riskylit_', discord:'UrFk6aZE6c', pinned:true},
-  {name:'blondebiss', img:'settings/1.png', tiktok:'blondebiss', discord:null},
-  {name:'kasvvy', img:'settings/3.png', tiktok:'kasvvy', discord:null},
-  {name:'coletickle23', img:'settings/4.png', tiktok:'coletickle23', discord:null},
-  {name:'yaslynbillz', img:'settings/5.png', tiktok:'yaslynbillz', discord:null},
-  {name:'silversouppeachyp28', img:'settings/6.png', tiktok:'silversouppeachyp28', discord:null}
-];
-
-function makeLink(username){
-  return `https://www.tiktok.com/@${username}`;
 }
 
-function renderStreamer(s){
-  const joinLink=s.discord ? `https://discord.gg/${s.discord}` : null;
+/* bots */
+for(let i=0;i<bots.length;i++){
+let b=bots[i];
+let dx=player.x-b.x;
+let dy=player.y-b.y;
+let d=Math.sqrt(dx*dx+dy*dy);
 
-  streamerBox.classList.remove('show');
-  void streamerBox.offsetWidth;
-
-  streamerBox.innerHTML=`
-    <img src="${s.img}" alt="${s.name}">
-    <div class="streamerInfo">
-      <b>@${s.name}</b>
-      <p>${s.pinned ? 'Pinned streamer' : 'Random streamer'}</p>
-      <div class="streamerActions">
-        ${joinLink ? `<button class="play smallbtn" onclick="window.open('${joinLink}','_blank')">Join</button>` : `<button class="play smallbtn" disabled style="opacity:.45;cursor:not-allowed;">Join</button>`}
-        <button class="more smallbtn" onclick="window.open('${makeLink(s.tiktok)}','_blank')">Watch</button>
-      </div>
-    </div>
-  `;
-
-  streamerBox.classList.add('show');
+/* eat bot */
+if(d<player.r && player.r>b.r){
+player.r+=b.r*0.3;
+bots.splice(i,1);
+spawnBot();
 }
 
-function randomStreamer(){
-  animateRefreshButton();
-  const s=streamers[Math.floor(Math.random()*streamers.length)];
-  renderStreamer(s);
+/* DIE */
+if(d<player.r && b.r>player.r){
+resetGame();
+}
+}
 }
 
-// show something immediately
-renderStreamer(streamers[0]);
-</script></body>
+/* RESET */
+function resetGame(){
+player.x=0;
+player.y=0;
+player.r=10;
+}
+
+/* DRAW */
+function draw(){
+ctx.clearRect(0,0,canvas.width,canvas.height);
+
+/* camera follow */
+cam.x+=(player.x-cam.x)*0.08;
+cam.y+=(player.y-cam.y)*0.08;
+
+/* FOOD */
+for(let f of food){
+ctx.beginPath();
+ctx.arc(f.x-cam.x+canvas.width/2,f.y-cam.y+canvas.height/2,f.r,0,Math.PI*2);
+ctx.fillStyle=f.color;
+ctx.fill();
+}
+
+/* BOTS */
+for(let b of bots){
+botAI(b);
+
+ctx.beginPath();
+ctx.arc(b.x-cam.x+canvas.width/2,b.y-cam.y+canvas.height/2,b.r,0,Math.PI*2);
+ctx.fillStyle=b.r>player.r?"red":"lime";
+ctx.fill();
+}
+
+/* PLAYER */
+ctx.beginPath();
+ctx.arc(canvas.width/2,canvas.height/2,player.r,0,Math.PI*2);
+ctx.fillStyle="white";
+ctx.fill();
+}
+
+/* LOOP */
+function loop(){
+move();
+collide();
+draw();
+
+/* UI */
+document.getElementById("size").innerText=Math.floor(player.r);
+document.getElementById("coins").innerText=Math.floor(player.r);
+
+/* XP BAR */
+document.getElementById("fill").style.width=Math.min(player.r*2,100)+"%";
+
+requestAnimationFrame(loop);
+}
+
+loop();
+</script>
+
+</body>
 </html>
